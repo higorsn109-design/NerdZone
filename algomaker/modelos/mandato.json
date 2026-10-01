@@ -1,0 +1,16 @@
+{
+  "cliente": "HN Gestão Comercial e Marketing",
+  "objetivo": "gerar reuniões de diagnóstico com donos de PME",
+  "verba_mensal": 15000,
+  "cpa_max": 80,
+  "verba_max_por_teste": 3000,
+  "queda_max_aceita": 0.30,
+  "horizonte_meses": 3,
+  "canais": ["Meta Ads", "Google Ads"],
+  "aprovacao_humana_para": [
+    "gastar ou aumentar verba",
+    "publicar anúncio",
+    "enviar mensagem a clientes ou leads",
+    "mudar preço, oferta ou contrato"
+  ]
+}

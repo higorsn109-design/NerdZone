@@ -1,0 +1,15 @@
+variante,periodo,impressoes,cliques,conversoes,gasto
+gancho-dor-processo,treino,48000,1450,62,3720.00
+gancho-dor-processo,selado,21000,640,27,1610.00
+gancho-resultado-cliente,treino,52000,1610,71,3900.00
+gancho-resultado-cliente,selado,25000,790,34,1880.00
+oferta-diagnostico-gratis,treino,61000,2100,105,4410.00
+oferta-diagnostico-gratis,selado,30000,1050,48,2240.00
+promocao-relampago,treino,50000,1500,75,3000.00
+promocao-relampago,selado,26000,800,32,3040.00
+video-depoimento,treino,39000,1180,58,2950.00
+video-depoimento,selado,36000,1100,36,2600.00
+carrossel-metodo,treino,44000,1320,49,3300.00
+carrossel-metodo,selado,23000,700,31,2300.00
+publico-donos-pme,treino,58000,1900,90,4180.00
+publico-donos-pme,selado,71000,2400,120,8160.00

@@ -41,7 +41,7 @@ table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:b
 th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
 th{background:var(--marca-suave)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
-pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:40px 16px 16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
 pre code{background:none;padding:0;color:inherit;white-space:pre}
 .copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
 .copiar:hover{background:#ffffff33}
@@ -1177,8 +1177,8 @@ Na primeira vez, baixa o modelo de transcrição (precisa de internet).</p>
 <h2>Atualizar este site</h2>
 <p>Editou algum <code>.md</code>? Gere o site de novo:</p>
 <pre><code>python3 ferramentas/gerar_site.py
-</code></pre>
-<h2>Código-fonte</h2><details><summary><code>ferramentas/cortar_silencios.py</code></summary><pre><code>#!/usr/bin/env python3
+</code></pre><h2>Código-fonte</h2>
+<details><summary><code>ferramentas/cortar_silencios.py</code></summary><pre><code>#!/usr/bin/env python3
 &quot;&quot;&quot;Remove as pausas de uma gravação usando o silencedetect do ffmpeg.
 
 Uso:
@@ -1409,7 +1409,10 @@ if __name__ == &quot;__main__&quot;:
     main()
 </code></pre></details>
 <details><summary><code>ferramentas/gerar_site.py</code></summary><pre><code>#!/usr/bin/env python3
-&quot;&quot;&quot;Gera CURSO.html (e site/index.html): o curso inteiro numa página que abre no navegador, sem internet.
+&quot;&quot;&quot;Gera os cursos em páginas únicas que abrem no navegador com dois cliques, sem internet.
+
+  CURSO.html              Edição com IA (também em site/index.html)
+  CURSO-MESA-AGENTES.html Mesa Operada por Agentes
 
 Rode de novo sempre que editar os arquivos .md:
   pip install markdown
@@ -1423,26 +1426,58 @@ from pathlib import Path
 import markdown
 
 RAIZ = Path(__file__).resolve().parent.parent
-MANUAL = RAIZ / &quot;curso&quot; / &quot;MANUAL-EDICAO-COM-IA-HN.md&quot;
-TITULO = &quot;Edição com IA — Curso HN&quot;
 
-LINKS = {
-    &quot;modelos/briefing.md&quot;: &quot;#briefing&quot;,
-    &quot;modelos/estrutura-de-pastas.md&quot;: &quot;#pastas&quot;,
-    &quot;modelos/ficha-de-revisao.md&quot;: &quot;#revisao&quot;,
-    &quot;modelos/guia-de-comandos.md&quot;: &quot;#comandos&quot;,
-    &quot;.claude/skills/&quot;: &quot;#skill-estilo&quot;,
-    &quot;ferramentas/cortar_silencios.py&quot;: &quot;#ferramentas&quot;,
-    &quot;ferramentas/legendar.py&quot;: &quot;#ferramentas&quot;,
-    &quot;ferramentas/&quot;: &quot;#ferramentas&quot;,
-}
-
-SKILLS = [
-    (&quot;estilo&quot;, &quot;Estilo&quot;),
-    (&quot;ritmo&quot;, &quot;Ritmo&quot;),
-    (&quot;legendas&quot;, &quot;Legendas&quot;),
-    (&quot;movimento&quot;, &quot;Movimento&quot;),
-    (&quot;composicao&quot;, &quot;Composição&quot;),
+CURSOS = [
+    {
+        &quot;titulo&quot;: &quot;Edição com IA — Curso HN&quot;,
+        &quot;manual&quot;: &quot;curso/MANUAL-EDICAO-COM-IA-HN.md&quot;,
+        &quot;saidas&quot;: [&quot;CURSO.html&quot;, &quot;site/index.html&quot;],
+        &quot;chave&quot;: &quot;curso-hn-concluidas&quot;,
+        &quot;materiais&quot;: [
+            (&quot;comandos&quot;, &quot;Guia de comandos&quot;, &quot;modelos/guia-de-comandos.md&quot;),
+            (&quot;briefing&quot;, &quot;Modelo de briefing&quot;, &quot;modelos/briefing.md&quot;),
+            (&quot;pastas&quot;, &quot;Pasta modelo&quot;, &quot;modelos/estrutura-de-pastas.md&quot;),
+            (&quot;revisao&quot;, &quot;Ficha de revisão&quot;, &quot;modelos/ficha-de-revisao.md&quot;),
+        ],
+        &quot;grupo_skills&quot;: &quot;Skills de edição&quot;,
+        &quot;skills&quot;: [
+            (&quot;skill-estilo&quot;, &quot;Estilo&quot;, &quot;.claude/skills/edicao-estilo/SKILL.md&quot;),
+            (&quot;skill-ritmo&quot;, &quot;Ritmo&quot;, &quot;.claude/skills/edicao-ritmo/SKILL.md&quot;),
+            (&quot;skill-legendas&quot;, &quot;Legendas&quot;, &quot;.claude/skills/edicao-legendas/SKILL.md&quot;),
+            (&quot;skill-movimento&quot;, &quot;Movimento&quot;, &quot;.claude/skills/edicao-movimento/SKILL.md&quot;),
+            (&quot;skill-composicao&quot;, &quot;Composição&quot;, &quot;.claude/skills/edicao-composicao/SKILL.md&quot;),
+        ],
+        &quot;ferramentas&quot;: &quot;ferramentas/LEIA-ME.md&quot;,
+        &quot;codigo&quot;: [&quot;ferramentas/cortar_silencios.py&quot;, &quot;ferramentas/legendar.py&quot;, &quot;ferramentas/gerar_site.py&quot;],
+        &quot;links&quot;: {
+            &quot;modelos/briefing.md&quot;: &quot;#briefing&quot;,
+            &quot;modelos/estrutura-de-pastas.md&quot;: &quot;#pastas&quot;,
+            &quot;modelos/ficha-de-revisao.md&quot;: &quot;#revisao&quot;,
+            &quot;modelos/guia-de-comandos.md&quot;: &quot;#comandos&quot;,
+            &quot;.claude/skills/&quot;: &quot;#skill-estilo&quot;,
+            &quot;ferramentas/cortar_silencios.py&quot;: &quot;#ferramentas&quot;,
+            &quot;ferramentas/legendar.py&quot;: &quot;#ferramentas&quot;,
+            &quot;ferramentas/&quot;: &quot;#ferramentas&quot;,
+        },
+    },
+    {
+        &quot;titulo&quot;: &quot;Mesa Operada por Agentes — Curso HN&quot;,
+        &quot;manual&quot;: &quot;algomaker/curso/MANUAL-MESA-OPERADA-POR-AGENTES-HN.md&quot;,
+        &quot;saidas&quot;: [&quot;CURSO-MESA-AGENTES.html&quot;],
+        &quot;chave&quot;: &quot;curso-mesa-hn-concluidas&quot;,
+        &quot;materiais&quot;: [
+            (&quot;mandato&quot;, &quot;Mandato comercial&quot;, &quot;algomaker/modelos/mandato-comercial.md&quot;),
+            (&quot;aderencia&quot;, &quot;Painel de aderência&quot;, &quot;algomaker/modelos/painel-aderencia.md&quot;),
+        ],
+        &quot;grupo_skills&quot;: &quot;Doutrina do agente&quot;,
+        &quot;skills&quot;: [
+            (&quot;skill-mesa&quot;, &quot;Mesa comercial HN&quot;, &quot;.claude/skills/mesa-comercial-hn/SKILL.md&quot;),
+        ],
+        &quot;ferramentas&quot;: &quot;algomaker/ferramentas/LEIA-ME.md&quot;,
+        &quot;codigo&quot;: [&quot;algomaker/ferramentas/funil_campanhas.py&quot;, &quot;algomaker/ferramentas/mcp_mesa_hn.py&quot;,
+                   &quot;algomaker/modelos/mandato.json&quot;, &quot;algomaker/modelos/exemplo-campanhas.csv&quot;],
+        &quot;links&quot;: {},
+    },
 ]
 
 
@@ -1462,12 +1497,12 @@ def limpar_separadores(texto):
     return re.sub(r&quot;(^\s*---\s*$\n?)+\s*\Z&quot;, &quot;&quot;, texto.strip(), flags=re.M).strip()
 
 
-def render(texto):
+def render(texto, links):
     corpo = markdown.markdown(texto, extensions=[&quot;tables&quot;, &quot;fenced_code&quot;, &quot;sane_lists&quot;])
 
     def trocar(m):
         alvo = m.group(1)
-        for fim, ancora in LINKS.items():
+        for fim, ancora in links.items():
             if alvo.endswith(fim):
                 return f&#x27;href=&quot;{ancora}&quot;&#x27;
         return m.group(0)
@@ -1475,8 +1510,8 @@ def render(texto):
     return re.sub(r&#x27;href=&quot;([^&quot;#][^&quot;]*)&quot;&#x27;, trocar, corpo)
 
 
-def secoes_do_manual():
-    texto = MANUAL.read_text(encoding=&quot;utf-8&quot;)
+def secoes_do_manual(curso):
+    texto = (RAIZ / curso[&quot;manual&quot;]).read_text(encoding=&quot;utf-8&quot;)
     partes = re.split(r&quot;(?m)^(?=## )&quot;, texto)
     cabecalho, secoes = partes[0], partes[1:]
     intro = [cabecalho.split(&quot;\n&quot;, 1)[1] if cabecalho.startswith(&quot;# &quot;) else cabecalho]
@@ -1493,84 +1528,44 @@ def secoes_do_manual():
             final.append(limpar_separadores(s))
         else:
             intro.append(limpar_separadores(s))
-    inicio = f&quot;# {TITULO}\n\n&quot; + subir_titulos(&quot;\n\n&quot;.join(limpar_separadores(x) for x in intro))
+    inicio = f&quot;# {curso[&#x27;titulo&#x27;]}\n\n&quot; + subir_titulos(&quot;\n\n&quot;.join(limpar_separadores(x) for x in intro))
     materiais = subir_titulos(&quot;\n\n&quot;.join(final))
     return inicio, aulas, materiais
 
 
-def pagina_ferramentas():
-    blocos = []
-    for nome in [&quot;cortar_silencios.py&quot;, &quot;legendar.py&quot;, &quot;gerar_site.py&quot;]:
-        codigo = (RAIZ / &quot;ferramentas&quot; / nome).read_text(encoding=&quot;utf-8&quot;)
-        blocos.append(
-            f&quot;&lt;details&gt;&lt;summary&gt;&lt;code&gt;ferramentas/{nome}&lt;/code&gt;&lt;/summary&gt;&quot;
-            f&quot;&lt;pre&gt;&lt;code&gt;{html.escape(codigo)}&lt;/code&gt;&lt;/pre&gt;&lt;/details&gt;&quot;
-        )
-    texto = &quot;&quot;&quot;# Ferramentas
-
-Scripts que fazem o trabalho pesado no seu computador, sem gastar IA. Você pode
-rodar direto ou pedir para o Codex/Claude Code rodar por você.
-
-## Instalar
-Requer **ffmpeg** e **Python 3**. Depois:
-```
-pip install faster-whisper markdown
-```
-
-## Cortar pausas
-```
-python3 ferramentas/cortar_silencios.py 01-bruto/take-01.mp4 05-amostras/sem-pausas.mp4
-```
-| Opção | Padrão | Quando mudar |
-|---|---|---|
-| `--limiar` | `-32` | Abaixe para `-40` se estiver cortando falas baixas |
-| `--pausa` | `0.45` | Duração mínima (s) de uma pausa para ser cortada |
-| `--respiro` | `0.12` | Aumente se o corte ficar seco no início/fim das palavras |
-
-## Legenda dinâmica
-```
-python3 ferramentas/legendar.py 05-amostras/sem-pausas.mp4 --queimar --maiusculas --cor &quot;#7C3AED&quot; --destaque &quot;HN,vendas&quot;
-```
-Gera `.srt`, `.ass`, a transcrição em texto e, com `--queimar`, o vídeo legendado.
-Na primeira vez, baixa o modelo de transcrição (precisa de internet).
-
-## Atualizar este site
-Editou algum `.md`? Gere o site de novo:
-```
-python3 ferramentas/gerar_site.py
-```
-
-## Código-fonte
-&quot;&quot;&quot;
-    return render(texto) + &quot;\n&quot;.join(blocos)
-
-
-def pagina_md(caminho, nota=None):
-    texto = caminho.read_text(encoding=&quot;utf-8&quot;)
+def pagina_md(caminho, links, nota=None):
+    texto = (RAIZ / caminho).read_text(encoding=&quot;utf-8&quot;)
     texto = re.sub(r&quot;\A---\n.*?\n---\n&quot;, &quot;&quot;, texto, flags=re.S)
-    corpo = render(texto)
+    corpo = render(texto, links)
     if nota:
         corpo = corpo.replace(&quot;&lt;/h1&gt;&quot;, f&#x27;&lt;/h1&gt;&lt;p class=&quot;arquivo&quot;&gt;{nota}&lt;/p&gt;&#x27;, 1)
     return corpo
 
 
-def montar():
-    inicio, aulas, materiais = secoes_do_manual()
-    paginas = [(&quot;inicio&quot;, &quot;Visão geral&quot;, &quot;Começo&quot;, render(inicio))]
+def pagina_ferramentas(curso):
+    blocos = [&quot;&lt;h2&gt;Código-fonte&lt;/h2&gt;&quot;]
+    for caminho in curso[&quot;codigo&quot;]:
+        codigo = (RAIZ / caminho).read_text(encoding=&quot;utf-8&quot;)
+        blocos.append(
+            f&quot;&lt;details&gt;&lt;summary&gt;&lt;code&gt;{html.escape(caminho)}&lt;/code&gt;&lt;/summary&gt;&quot;
+            f&quot;&lt;pre&gt;&lt;code&gt;{html.escape(codigo)}&lt;/code&gt;&lt;/pre&gt;&lt;/details&gt;&quot;
+        )
+    return pagina_md(curso[&quot;ferramentas&quot;], curso[&quot;links&quot;]) + &quot;\n&quot;.join(blocos)
+
+
+def montar(curso):
+    links = curso[&quot;links&quot;]
+    inicio, aulas, materiais = secoes_do_manual(curso)
+    paginas = [(&quot;inicio&quot;, &quot;Visão geral&quot;, &quot;Começo&quot;, render(inicio, links))]
     for pid, rotulo, tipo, texto in aulas:
-        paginas.append((pid, rotulo, &quot;Aulas&quot; if tipo == &quot;Aula&quot; else &quot;Bônus&quot;, render(texto)))
-    paginas += [
-        (&quot;comandos&quot;, &quot;Guia de comandos&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/guia-de-comandos.md&quot;)),
-        (&quot;briefing&quot;, &quot;Modelo de briefing&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/briefing.md&quot;)),
-        (&quot;pastas&quot;, &quot;Pasta modelo&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/estrutura-de-pastas.md&quot;)),
-        (&quot;revisao&quot;, &quot;Ficha de revisão&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/ficha-de-revisao.md&quot;)),
-        (&quot;materiais&quot;, &quot;Materiais e glossário&quot;, &quot;Materiais&quot;, render(materiais)),
-    ]
-    for slug, nome in SKILLS:
-        arq = RAIZ / f&quot;.claude/skills/edicao-{slug}/SKILL.md&quot;
-        paginas.append((f&quot;skill-{slug}&quot;, nome, &quot;Skills de edição&quot;,
-                        pagina_md(arq, f&quot;Arquivo: &lt;code&gt;.claude/skills/edicao-{slug}/SKILL.md&lt;/code&gt;&quot;)))
-    paginas.append((&quot;ferramentas&quot;, &quot;Ferramentas&quot;, &quot;Ferramentas&quot;, pagina_ferramentas()))
+        paginas.append((pid, rotulo, &quot;Aulas&quot; if tipo == &quot;Aula&quot; else &quot;Bônus&quot;, render(texto, links)))
+    for pid, rotulo, caminho in curso[&quot;materiais&quot;]:
+        paginas.append((pid, rotulo, &quot;Materiais&quot;, pagina_md(caminho, links)))
+    paginas.append((&quot;materiais&quot;, &quot;Materiais e glossário&quot;, &quot;Materiais&quot;, render(materiais, links)))
+    for pid, rotulo, caminho in curso[&quot;skills&quot;]:
+        paginas.append((pid, rotulo, curso[&quot;grupo_skills&quot;],
+                        pagina_md(caminho, links, f&quot;Arquivo: &lt;code&gt;{html.escape(caminho)}&lt;/code&gt;&quot;)))
+    paginas.append((&quot;ferramentas&quot;, &quot;Ferramentas&quot;, &quot;Ferramentas&quot;, pagina_ferramentas(curso)))
 
     nav, grupo_atual = [], None
     for pid, rotulo, grupo, _ in paginas:
@@ -1588,14 +1583,14 @@ def montar():
         for pid, _, _, corpo in paginas
     )
     ordem = [{&quot;id&quot;: p[0], &quot;rotulo&quot;: p[1], &quot;aula&quot;: p[0].startswith((&quot;aula-&quot;, &quot;bonus-&quot;))} for p in paginas]
-    saida = MODELO.replace(&quot;{{TITULO}}&quot;, html.escape(TITULO))
+    saida = MODELO.replace(&quot;{{TITULO}}&quot;, html.escape(curso[&quot;titulo&quot;])).replace(&quot;{{CHAVE}}&quot;, curso[&quot;chave&quot;])
     saida = saida.replace(&quot;{{NAV}}&quot;, &quot;\n&quot;.join(nav)).replace(&quot;{{SECOES}}&quot;, secoes)
     saida = saida.replace(&quot;[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · Ambiente pronto", "aula": true}, {"id": "aula-02", "rotulo": "02 · Seu primeiro projeto", "aula": true}, {"id": "aula-03", "rotulo": "03 · Custos sob controle", "aula": true}, {"id": "aula-04", "rotulo": "04 · O pedido certo", "aula": true}, {"id": "aula-05", "rotulo": "05 · Primeira edição", "aula": true}, {"id": "aula-06", "rotulo": "06 · Imagens com função", "aula": true}, {"id": "aula-07", "rotulo": "07 · Motion explicativo", "aula": true}, {"id": "aula-08", "rotulo": "08 · Variações para ads", "aula": true}, {"id": "aula-09", "rotulo": "09 · Revisar sem refazer", "aula": true}, {"id": "aula-10", "rotulo": "10 · Rotina de produção", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · Perspectiva e composição 3D", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Recorte, moldura e lettering", "aula": true}, {"id": "comandos", "rotulo": "Guia de comandos", "aula": false}, {"id": "briefing", "rotulo": "Modelo de briefing", "aula": false}, {"id": "pastas", "rotulo": "Pasta modelo", "aula": false}, {"id": "revisao", "rotulo": "Ficha de revisão", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-estilo", "rotulo": "Estilo", "aula": false}, {"id": "skill-ritmo", "rotulo": "Ritmo", "aula": false}, {"id": "skill-legendas", "rotulo": "Legendas", "aula": false}, {"id": "skill-movimento", "rotulo": "Movimento", "aula": false}, {"id": "skill-composicao", "rotulo": "Composição", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}]&quot;, json.dumps(ordem, ensure_ascii=False))
-    destino = RAIZ / &quot;site&quot; / &quot;index.html&quot;
-    destino.parent.mkdir(exist_ok=True)
-    destino.write_text(saida, encoding=&quot;utf-8&quot;)
-    (RAIZ / &quot;CURSO.html&quot;).write_text(saida, encoding=&quot;utf-8&quot;)
-    print(f&quot;{len(paginas)} páginas -&gt; CURSO.html e {destino.relative_to(RAIZ)}&quot;)
+    for destino in curso[&quot;saidas&quot;]:
+        arq = RAIZ / destino
+        arq.parent.mkdir(parents=True, exist_ok=True)
+        arq.write_text(saida, encoding=&quot;utf-8&quot;)
+    print(f&quot;{curso[&#x27;titulo&#x27;]}: {len(paginas)} páginas -&gt; {&#x27;, &#x27;.join(curso[&#x27;saidas&#x27;])}&quot;)
 
 
 MODELO = r&quot;&quot;&quot;&lt;!doctype html&gt;
@@ -1641,7 +1636,7 @@ table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:b
 th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
 th{background:var(--marca-suave)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
-pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:40px 16px 16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
 pre code{background:none;padding:0;color:inherit;white-space:pre}
 .copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
 .copiar:hover{background:#ffffff33}
@@ -1680,7 +1675,7 @@ h1{font-size:26px}
 &lt;/div&gt;
 &lt;script&gt;
 const ORDEM=[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · Ambiente pronto", "aula": true}, {"id": "aula-02", "rotulo": "02 · Seu primeiro projeto", "aula": true}, {"id": "aula-03", "rotulo": "03 · Custos sob controle", "aula": true}, {"id": "aula-04", "rotulo": "04 · O pedido certo", "aula": true}, {"id": "aula-05", "rotulo": "05 · Primeira edição", "aula": true}, {"id": "aula-06", "rotulo": "06 · Imagens com função", "aula": true}, {"id": "aula-07", "rotulo": "07 · Motion explicativo", "aula": true}, {"id": "aula-08", "rotulo": "08 · Variações para ads", "aula": true}, {"id": "aula-09", "rotulo": "09 · Revisar sem refazer", "aula": true}, {"id": "aula-10", "rotulo": "10 · Rotina de produção", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · Perspectiva e composição 3D", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Recorte, moldura e lettering", "aula": true}, {"id": "comandos", "rotulo": "Guia de comandos", "aula": false}, {"id": "briefing", "rotulo": "Modelo de briefing", "aula": false}, {"id": "pastas", "rotulo": "Pasta modelo", "aula": false}, {"id": "revisao", "rotulo": "Ficha de revisão", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-estilo", "rotulo": "Estilo", "aula": false}, {"id": "skill-ritmo", "rotulo": "Ritmo", "aula": false}, {"id": "skill-legendas", "rotulo": "Legendas", "aula": false}, {"id": "skill-movimento", "rotulo": "Movimento", "aula": false}, {"id": "skill-composicao", "rotulo": "Composição", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}];
-const CHAVE=&quot;curso-hn-concluidas&quot;;
+const CHAVE=&quot;{{CHAVE}}&quot;;
 function ler(){try{return new Set(JSON.parse(localStorage.getItem(CHAVE)||&quot;[]&quot;))}catch(e){return new Set()}}
 function gravar(s){try{localStorage.setItem(CHAVE,JSON.stringify([...s]))}catch(e){}}
 let feitas=ler();
@@ -1728,7 +1723,8 @@ atualizarProgresso();mostrar();
 &quot;&quot;&quot;
 
 if __name__ == &quot;__main__&quot;:
-    montar()
+    for c in CURSOS:
+        montar(c)
 </code></pre></details></section>
 <div class="rodape" id="rodape"></div>
 </main>

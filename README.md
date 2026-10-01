@@ -3,10 +3,16 @@
 Central de edição de vídeos com IA da **HN Gestão Comercial e Marketing**: você dá o
 comando em português, e o Codex ou o Claude Code edita.
 
-## Abrir o curso no navegador
-**Dois cliques em `CURSO.html`.** Abre direto no navegador, sem instalar nada e sem internet.
+## Os cursos
+| Arquivo | Curso |
+|---|---|
+| `CURSO.html` | **Edição com IA**: editar anúncios e conteúdos dando comandos em português |
+| `CURSO-MESA-AGENTES.html` | **Mesa Operada por Agentes**: o método do AlgoMaker e a mesa comercial da HN |
 
-Opcional, com servidor local (precisa de Python):
+## Abrir o curso no navegador
+**Dois cliques no arquivo `.html` do curso.** Abre direto no navegador, sem instalar nada e sem internet.
+
+Opcional, com servidor local para o curso de edição (precisa de Python):
 - **Windows:** dois cliques em `abrir-curso.bat`
 - **Mac:** dois cliques em `abrir-curso.command` (na primeira vez: botão direito → Abrir)
 - **Linux:** `sh abrir-curso.command`
@@ -26,6 +32,7 @@ Nesse caso o curso abre em **http://localhost:8000**, só enquanto a janela do a
 | `modelos/` | Guia de comandos, briefing, pasta modelo e ficha de revisão |
 | `.claude/skills/` | 5 skills de edição (estilo, ritmo, legendas, movimento e composição) |
 | `ferramentas/` | Scripts testados para cortar pausas e gerar legendas dinâmicas |
+| `algomaker/` | Curso da mesa operada por agentes: manual, mandato, painel de aderência, funil de campanhas e servidor MCP |
 | `AGENTS.md` | Instruções que o Codex e o Claude Code seguem neste repositório |
 
 ## Primeira edição em 2 comandos

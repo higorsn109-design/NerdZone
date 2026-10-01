@@ -1,0 +1,1551 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesa Operada por Agentes — Curso HN</title>
+<style>
+:root{--bg:#f7f6fb;--painel:#fff;--texto:#1c1530;--suave:#5d5675;--linha:#e4e0ef;--marca:#7c3aed;--marca-suave:#efe7fd;--codigo-bg:#16101f;--codigo-tx:#ece6f8;--ok:#16a34a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--texto);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+.topo{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--painel);border-bottom:1px solid var(--linha)}
+.topo strong{font-size:15px;letter-spacing:.01em}
+.topo .marca{width:28px;height:28px;border-radius:8px;background:var(--marca);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.topo .espaco{flex:1}
+.progresso{font-size:13px;color:var(--suave);white-space:nowrap}
+.barra{height:4px;width:120px;background:var(--linha);border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--marca);transition:width .3s}
+button{font:inherit;cursor:pointer}
+.botao-menu{display:none;background:none;border:1px solid var(--linha);color:var(--texto);border-radius:8px;padding:4px 10px}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1240px;margin:0 auto}
+nav{position:sticky;top:53px;height:calc(100vh - 53px);overflow:auto;padding:16px 12px 40px;border-right:1px solid var(--linha)}
+nav .grupo{margin:18px 10px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--suave)}
+nav ul{list-style:none;margin:0;padding:0}
+nav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:var(--texto);text-decoration:none;font-size:14.5px}
+nav a:hover{background:var(--marca-suave)}
+nav a.ativo{background:var(--marca-suave);color:var(--marca);font-weight:600}
+nav .ok{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid var(--linha)}
+nav a.feito .ok{background:var(--ok);border-color:var(--ok)}
+main{padding:32px 40px 80px;min-width:0}
+.pagina{max-width:760px}
+h1{font-size:32px;line-height:1.2;margin:0 0 20px;letter-spacing:-.01em}
+h2{font-size:22px;margin:36px 0 12px;padding-top:8px}
+h3{font-size:18px;margin:26px 0 8px}
+a{color:var(--marca)}
+blockquote{margin:18px 0;padding:12px 16px;background:var(--marca-suave);border-left:4px solid var(--marca);border-radius:0 10px 10px 0}
+blockquote p{margin:.3em 0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:var(--marca-suave)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:40px 16px 16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre code{background:none;padding:0;color:inherit;white-space:pre}
+.copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
+.copiar:hover{background:#ffffff33}
+details{margin:12px 0;border:1px solid var(--linha);border-radius:10px;padding:8px 14px;background:var(--painel)}
+summary{cursor:pointer;font-weight:600}
+.arquivo{color:var(--suave);font-size:14px;margin-top:-10px}
+.rodape{max-width:760px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--linha)}
+.rodape a{text-decoration:none;padding:8px 14px;border:1px solid var(--linha);border-radius:10px;background:var(--painel);color:var(--texto);font-size:14px}
+.rodape a:hover{border-color:var(--marca)}
+.concluir{display:flex;align-items:center;gap:8px;font-weight:600;padding:8px 14px;border-radius:10px;border:1px solid var(--marca);background:var(--painel);color:var(--marca)}
+.concluir.feito{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (max-width:860px){
+.layout{grid-template-columns:1fr}
+.botao-menu{display:block}
+nav{position:fixed;top:53px;left:0;width:min(300px,85vw);background:var(--painel);z-index:15;transform:translateX(-105%);transition:transform .2s;box-shadow:0 10px 30px #0004}
+body.menu-aberto nav{transform:none}
+main{padding:24px 16px 64px}
+h1{font-size:26px}
+.barra{display:none}
+}
+</style>
+</head>
+<body>
+<header class="topo">
+<button class="botao-menu" aria-label="Abrir menu" onclick="document.body.classList.toggle('menu-aberto')">☰</button>
+<span class="marca">HN</span><strong>Mesa Operada por Agentes — Curso HN</strong>
+<span class="espaco"></span>
+<span class="progresso" id="progresso"></span><span class="barra"><i id="barra"></i></span>
+</header>
+<div class="layout">
+<nav aria-label="Conteúdo do curso"><p class="grupo">Começo</p><ul>
+<li><a href="#inicio" data-id="inicio">Visão geral</a></li>
+</ul>
+<p class="grupo">Aulas</p><ul>
+<li><a href="#aula-01" data-id="aula-01"><span class="ok" aria-hidden="true"></span>01 · A virada: o agente não finge ser mouse</a></li>
+<li><a href="#aula-02" data-id="aula-02"><span class="ok" aria-hidden="true"></span>02 · A mesa de cinco postos</a></li>
+<li><a href="#aula-03" data-id="aula-03"><span class="ok" aria-hidden="true"></span>03 · Preparar e ligar o conector</a></li>
+<li><a href="#aula-04" data-id="aula-04"><span class="ok" aria-hidden="true"></span>04 · Ligar o motor e abrir o painel</a></li>
+<li><a href="#aula-05" data-id="aula-05"><span class="ok" aria-hidden="true"></span>05 · O mandato e a primeira carteira</a></li>
+<li><a href="#aula-06" data-id="aula-06"><span class="ok" aria-hidden="true"></span>06 · Acompanhar a carteira</a></li>
+<li><a href="#aula-07" data-id="aula-07"><span class="ok" aria-hidden="true"></span>07 · Licença, corretora e dinheiro real</a></li>
+<li><a href="#aula-08" data-id="aula-08"><span class="ok" aria-hidden="true"></span>08 · Problemas comuns</a></li>
+<li><a href="#aula-09" data-id="aula-09"><span class="ok" aria-hidden="true"></span>09 · O funil cético</a></li>
+<li><a href="#aula-10" data-id="aula-10"><span class="ok" aria-hidden="true"></span>10 · Contenção: os controles que tornam isso confiável</a></li>
+<li><a href="#aula-11" data-id="aula-11"><span class="ok" aria-hidden="true"></span>11 · A mesa comercial da HN operada por agentes</a></li>
+<li><a href="#aula-12" data-id="aula-12"><span class="ok" aria-hidden="true"></span>12 · O funil de campanhas da HN</a></li>
+<li><a href="#aula-13" data-id="aula-13"><span class="ok" aria-hidden="true"></span>13 · Previsto contra realizado e o diário de decisões</a></li>
+<li><a href="#aula-14" data-id="aula-14"><span class="ok" aria-hidden="true"></span>14 · Montando a mesa da HN com Claude Code</a></li>
+</ul>
+<p class="grupo">Bônus</p><ul>
+<li><a href="#bonus-01" data-id="bonus-01"><span class="ok" aria-hidden="true"></span>B1 · O funil de vendas do AlgoMaker (para a HN copiar)</a></li>
+<li><a href="#bonus-02" data-id="bonus-02"><span class="ok" aria-hidden="true"></span>B2 · Riscos, ética e conformidade</a></li>
+</ul>
+<p class="grupo">Materiais</p><ul>
+<li><a href="#mandato" data-id="mandato">Mandato comercial</a></li>
+<li><a href="#aderencia" data-id="aderencia">Painel de aderência</a></li>
+<li><a href="#materiais" data-id="materiais">Materiais e glossário</a></li>
+</ul>
+<p class="grupo">Doutrina do agente</p><ul>
+<li><a href="#skill-mesa" data-id="skill-mesa">Mesa comercial HN</a></li>
+</ul>
+<p class="grupo">Ferramentas</p><ul>
+<li><a href="#ferramentas" data-id="ferramentas">Ferramentas</a></li>
+</ul></nav>
+<main>
+<section class="pagina" id="pg-inicio" data-id="inicio" hidden><h1>Mesa Operada por Agentes — Curso HN</h1>
+<blockquote>
+<p>Como funciona o método do AlgoMaker (algomakers.com), como operar o produto passo a passo
+e como aplicar a mesma arquitetura na <strong>HN Gestão Comercial e Marketing</strong>: agentes de IA
+que trabalham dentro de um mandato, um funil que reprova o que não se sustenta, e a
+decisão de gastar dinheiro sempre na mão de um humano.</p>
+</blockquote>
+<h1>Como usar este manual</h1>
+<p>Este curso foi montado a partir de <strong>tudo o que o AlgoMaker publica abertamente</strong>: as 13
+páginas do sitemap (institucional em 5 idiomas, página "em português claro", plataforma e
+preço, quiz, diagnóstico, contato, termos e privacidade), o <code>llms.txt</code>, o <strong>manual público do
+cliente</strong> e o <strong>plugin público</strong> que o próprio site distribui para o Claude Code (com a
+doutrina que o agente segue). Nada foi tirado de área restrita. O conteúdo é escrito do zero.
+Ele não é material oficial do AlgoMaker.</p>
+<p><strong>O que foi e o que não foi testado.</strong> As ferramentas da HN deste curso (o funil de campanhas
+e o servidor MCP da mesa comercial) foram executadas e validadas. O <strong>produto AlgoMaker em
+si não foi instalado nem executado</strong>: os passos das Aulas 03 a 08 reproduzem o manual
+público dele. Comandos e versões podem mudar — na dúvida, siga o que o próprio Claude
+devolver ao pedir "instala o AlgoMaker nesta máquina".</p>
+<blockquote>
+<p><strong>Aviso de risco.</strong> O AlgoMaker é software de pesquisa e execução para operar mercado
+financeiro. Operar envolve risco real de perda, inclusive do capital inteiro. Nada neste
+curso é recomendação de investimento. Resultado passado, simulado ou real, não garante
+resultado futuro.</p>
+</blockquote>
+<p>O curso tem quatro partes:</p>
+<table>
+<thead>
+<tr>
+<th>Parte</th>
+<th>Aulas</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entender</strong></td>
+<td>01–02</td>
+<td>O que muda quando a IA opera por funções, e a mesa de cinco postos</td>
+</tr>
+<tr>
+<td><strong>Operar o AlgoMaker</strong></td>
+<td>03–08</td>
+<td>Instalar, minerar, acompanhar, ligar dinheiro real e resolver problemas</td>
+</tr>
+<tr>
+<td><strong>A doutrina</strong></td>
+<td>09–10</td>
+<td>O funil cético e os controles que tornam isso confiável</td>
+</tr>
+<tr>
+<td><strong>Aplicar na HN</strong></td>
+<td>11–14</td>
+<td>A mesa comercial da HN, com ferramentas prontas e testadas</td>
+</tr>
+<tr>
+<td><strong>Bônus</strong></td>
+<td>B1–B2</td>
+<td>O funil de vendas do AlgoMaker e riscos/conformidade</td>
+</tr>
+</tbody>
+</table>
+<h1>A ideia central em uma frase</h1>
+<blockquote>
+<p><strong>Autonomia é a parte fácil. O produto é a contenção.</strong></p>
+</blockquote>
+<p>Qualquer coisa pode ser automatizada com IA. O que separa uma operação séria de uma aposta é
+o que o sistema <strong>se recusa a fazer</strong> e o que ele <strong>registra</strong> enquanto faz o resto. Todo o
+método decorre disso:</p>
+<ol>
+<li><strong>Mandato antes de ação</strong> — sem objetivo, limite de perda e horizonte escritos, nada roda.</li>
+<li><strong>Funil que mata</strong> — as ideias passam por testes desenhados para reprovar, não para confirmar.</li>
+<li><strong>Simulação antes do real</strong> — tudo roda primeiro sem dinheiro.</li>
+<li><strong>Portão humano</strong> — ligar dinheiro real é um clique humano, numa tela, nunca do agente.</li>
+<li><strong>Previsto contra realizado</strong> — o sistema presta contas do que prometeu.</li>
+<li><strong>Registro de tudo</strong> — cada decisão fica gravada com o motivo.</li>
+</ol>
+<p>Guarde essas seis regras. A Parte 4 aplica cada uma delas na HN.</p></section>
+<section class="pagina" id="pg-aula-01" data-id="aula-01" hidden><h1>Aula 01 — A virada: o agente não finge ser mouse</h1>
+<p><strong>Objetivo:</strong> entender por que a IA deve operar por <strong>funções</strong> e não clicando em telas.</p>
+<h2>Conceito</h2>
+<p>Um robô que move o cursor quebra no dia em que um botão muda de lugar — e não deixa nada
+auditável para trás. A alternativa é o sistema <strong>expor as próprias operações como funções</strong>:</p>
+<pre><code>data.download()       baixar dados
+mine.strategies()     gerar candidatas
+retest.funnel()       passar pelo funil
+portfolio.run()       montar a carteira
+deploy.paper()        simular sem dinheiro
+exec.status()         ver como está
+</code></pre>
+<p>O agente <strong>chama</strong> essas funções; o <strong>mandato limita</strong> o que ele pode chamar; e <strong>cada decisão
+fica registrada com o motivo</strong>. É a diferença entre um histórico que você explica e um que
+você apenas mostra.</p>
+<h2>O que é MCP</h2>
+<p><strong>MCP (Model Context Protocol)</strong> é o padrão aberto que liga um agente de IA (Claude, ChatGPT,
+Codex) a ferramentas externas. O sistema publica uma lista de funções com descrição e travas;
+o agente descobre essa lista sozinho e chama o que precisa. É assim que o AlgoMaker se
+conecta "ao modelo que você já paga": <strong>a plataforma não vende inteligência — ela expõe a
+mesa, e o seu agente traz o raciocínio</strong>, pela sua própria assinatura.</p>
+<p>O AlgoMaker oferece quatro formas de integração:</p>
+<table>
+<thead>
+<tr>
+<th>Integração</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Servidor MCP</strong></td>
+<td>O agente descobre e chama as ferramentas diretamente</td>
+</tr>
+<tr>
+<td><strong>API local</strong></td>
+<td>Interface HTTP autenticada na máquina, para sistemas sem agente</td>
+</tr>
+<tr>
+<td><strong>Painel (cabine)</strong></td>
+<td>A visão humana do mesmo motor: campanhas, carteiras, monitor</td>
+</tr>
+<tr>
+<td><strong>Implantação própria</strong></td>
+<td>Roda na sua infraestrutura (inclusive VPS), sem custódia de recursos</td>
+</tr>
+</tbody>
+</table>
+<h2>Exercício HN</h2>
+<p>Liste 5 tarefas da HN que hoje alguém faz "clicando em tela" (ex.: puxar relatório do Meta
+Ads, atualizar CRM). Para cada uma, escreva como seria a <strong>função</strong> equivalente:
+<code>relatorio.campanhas(periodo)</code>, <code>crm.leads_novos(desde)</code>…</p></section>
+<section class="pagina" id="pg-aula-02" data-id="aula-02" hidden><h1>Aula 02 — A mesa de cinco postos</h1>
+<p><strong>Objetivo:</strong> entender a estrutura de trabalho que o AlgoMaker automatiza — e que serve de
+modelo para qualquer operação.</p>
+<h2>Os cinco problemas que caem numa pessoa só</h2>
+<p>Numa mesa profissional, cada problema tem um responsável, um horário e um método. Na mesa de
+uma pessoa só, todos chegam nela ao mesmo tempo:</p>
+<table>
+<thead>
+<tr>
+<th>Problema</th>
+<th>Como aparece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tempo</strong></td>
+<td>O mercado não fecha. Você fecha. O movimento acontece no meio do expediente.</td>
+</tr>
+<tr>
+<td><strong>Conhecimento</strong></td>
+<td>Ninguém te ensinou a medir se o padrão é real ou coincidência.</td>
+</tr>
+<tr>
+<td><strong>Código</strong></td>
+<td>A estratégia mora na sua cabeça: não pode ser testada, repetida nem auditada.</td>
+</tr>
+<tr>
+<td><strong>Emocional</strong></td>
+<td>Três da manhã, duas perdas seguidas — e é você, cansado, que decide o tamanho da próxima.</td>
+</tr>
+<tr>
+<td><strong>Validação</strong></td>
+<td>A curva sobe bonita no histórico. Ninguém testou no pedaço que ela nunca viu.</td>
+</tr>
+</tbody>
+</table>
+<h2>Os cinco postos — cada um vira um agente</h2>
+<table>
+<thead>
+<tr>
+<th>Posto</th>
+<th>Função na mesa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Macro</strong></td>
+<td>Lê dados globais, calendário e notícias; ajusta quanto pode estar exposto hoje</td>
+</tr>
+<tr>
+<td><strong>Quant</strong></td>
+<td>Transforma a ideia em hipótese mensurável e a submete a testes que quase nada sobrevive</td>
+</tr>
+<tr>
+<td><strong>Programador</strong></td>
+<td>Escreve o código, versiona e deixa rastro — a estratégia vira artefato conferível</td>
+</tr>
+<tr>
+<td><strong>Risco e compliance</strong></td>
+<td>O cão de guarda: confere cada ordem contra o limite e recusa dizendo o motivo</td>
+</tr>
+<tr>
+<td><strong>Execução</strong></td>
+<td>Encontra liquidez, calcula o tamanho, envia a ordem e registra a proteção</td>
+</tr>
+</tbody>
+</table>
+<p>Na plataforma, esses postos aparecem como cinco "estações": <strong>Macro</strong> (base tratada),
+<strong>Tese</strong> (hipótese testável, janela selada), <strong>Modelo</strong> (tamanho pela liquidez medida),
+<strong>Robô</strong> (executa sem tela aberta) e <strong>Mesa</strong> (cobra o que foi prometido).</p>
+<h2>Exercício HN</h2>
+<p>Desenhe os cinco postos da <strong>área comercial</strong> da HN (a Aula 11 traz uma proposta pronta).
+Quem faz cada função hoje? Quanto tempo por semana?</p></section>
+<section class="pagina" id="pg-aula-03" data-id="aula-03" hidden><h1>Aula 03 — Preparar e ligar o conector</h1>
+<p><strong>Objetivo:</strong> deixar o Claude conhecendo o AlgoMaker.</p>
+<h2>O que é grátis e o que pede licença</h2>
+<table>
+<thead>
+<tr>
+<th>Grátis, sem cadastro</th>
+<th>Pede licença</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baixar dados históricos</td>
+<td>Operar com dinheiro real (modo LIVE)</td>
+</tr>
+<tr>
+<td>Minerar estratégias</td>
+<td>Exportar o código da estratégia (.mq5 / Python)</td>
+</tr>
+<tr>
+<td>Testar robustez (walk-forward, Monte Carlo, estresse de custo)</td>
+<td>Exportar arquivos .alg</td>
+</tr>
+<tr>
+<td>Montar carteira e medir correlação</td>
+<td></td>
+</tr>
+<tr>
+<td>Simular em papel (preço real, ordem simulada)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tudo até ter a primeira carteira em simulação é grátis.</strong> A licença (R$ 497 à vista ou
+12× R$ 51,40, válida por 12 meses, sem renovação automática, 7 dias para desistir — valores
+publicados no site em 2026) só entra para operar com dinheiro real.</p>
+<h2>O que você precisa ter</h2>
+<ul>
+<li><strong>Claude Pro ou Max</strong> — app de desktop (Mac/Windows), claude.ai ou Claude Code. O uso sai
+  da sua assinatura; não há custo de API.</li>
+<li><strong>Windows 10/11 ou macOS</strong> (Linux pelo terminal).</li>
+<li>Para minerar: <strong>4 núcleos e 8 GB de RAM</strong> no mínimo.</li>
+</ul>
+<h2>Caminho A — Claude Desktop ou claude.ai</h2>
+<ol>
+<li><strong>Configurações → Conectores → Adicionar conector personalizado.</strong></li>
+<li>Preencha: <strong>Nome</strong> <code>AlgoMakers</code> · <strong>URL</strong> <code>https://algomakers.com/mcp</code> ·
+   <strong>Autenticação</strong> nenhuma · <strong>Cabeçalhos</strong> vazio · <strong>Avançada</strong> não mexa.</li>
+<li>O aviso laranja ("sem credenciais, qualquer pessoa pode usar") é esperado: esse conector
+   <strong>só orienta</strong>, não executa nada nem vê seus dados.</li>
+<li><strong>Adicionar.</strong> Abra uma conversa nova, confira que o conector está ligado e pergunte:
+   <em>"O que é o AlgoMaker?"</em></li>
+</ol>
+<h2>Caminho B — Claude Code</h2>
+<p>Dentro do Claude Code, um comando de cada vez:</p>
+<pre><code>/plugin marketplace add https://algomakers.com/claude/marketplace.json
+/plugin install algomaker@algomakers
+</code></pre>
+<p>Confirme a confiança no marketplace e escolha o escopo <strong>usuário</strong>. Confira com <code>/mcp</code>: devem
+aparecer <code>algomaker-onboarding</code> e <code>algomaker-motor</code> (este só conecta depois da Aula 04).</p>
+<h2>A conversa de orientação</h2>
+<p>Com o conector ligado, frases que funcionam: <em>"Como instalo no Windows?"</em>, <em>"Preciso pagar
+para testar?"</em>, <em>"Já tenho uma chave de licença"</em>.</p></section>
+<section class="pagina" id="pg-aula-04" data-id="aula-04" hidden><h1>Aula 04 — Ligar o motor e abrir o painel</h1>
+<p><strong>Objetivo:</strong> instalar o motor (é ele que minera) e abrir a tela de controle.</p>
+<h2>Conceito</h2>
+<p><strong>Não existe aplicativo para baixar.</strong> Instala-se só o <strong>motor</strong>, pelo <code>uv</code> (um gerenciador
+de Python), e a tela é um <strong>painel servido no seu navegador</strong>, em <code>127.0.0.1</code> — ou seja, na
+sua própria máquina, sem nada na internet.</p>
+<h2>O jeito mais simples</h2>
+<p>No Claude Code, peça: <strong>"instala o AlgoMaker nesta máquina"</strong>. O agente roda os comandos.</p>
+<h2>Se for você a digitar</h2>
+<p><strong>1. Instale o <code>uv</code> (uma vez só):</strong></p>
+<pre><code># Windows (PowerShell):
+powershell -ExecutionPolicy ByPass -c &quot;irm https://astral.sh/uv/install.ps1 | iex&quot;
+
+# Mac/Linux (Terminal):
+curl -LsSf https://astral.sh/uv/install.sh | sh
+</code></pre>
+<p><strong>2. Registre o motor.</strong> O comando exato traz o número da versão do motor e muda com o
+tempo — peça ao Claude <em>"como instalo no Mac?"</em> (ou Windows) e use a linha que ele devolver.
+No Claude Code com o plugin da Aula 03, basta ter o <code>uv</code>: o plugin sobe o motor sozinho.</p>
+<p><strong>3. Feche e abra o Claude por completo.</strong> Ele só lê a lista de conectores ao iniciar. É o
+passo que mais gente esquece. Para conferir, pergunte <em>"qual é o status da minha licença?"</em>
+— a resposta vem do motor: plano <strong>free</strong> e o identificador da máquina.</p>
+<h2>O painel</h2>
+<p>Diga <strong>"abre o painel"</strong>. Abre no navegador uma tela com <strong>Início, Construtor, Databank,
+Fábrica, Monitor e Configurações</strong>. O link é de uso único e vence em 5 minutos. É <strong>no
+painel</strong> que você faz o que o agente não pode: cadastrar chave de corretora, armar dinheiro
+real, fechar posição. O painel continua rodando mesmo com o Claude fechado.</p>
+<p>Onde ficam seus dados: <code>%APPDATA%\@mm\desktop</code> (Windows), <code>~/Library/Application
+Support/AlgoMaker</code> (Mac), <code>~/.local/share/algomaker</code> (Linux).</p></section>
+<section class="pagina" id="pg-aula-05" data-id="aula-05" hidden><h1>Aula 05 — O mandato e a primeira carteira</h1>
+<p><strong>Objetivo:</strong> fazer o sistema minerar, validar e simular uma carteira.</p>
+<h2>Primeiro, o mandato — sem ele, nada roda</h2>
+<p>O agente precisa saber quem você é antes de minerar. <strong>É proposital.</strong> Diga as quatro coisas:</p>
+<pre><code>Meu capital é 10 mil dólares, aguento 20% de queda, quero crescimento,
+horizonte de 6 meses.
+</code></pre>
+<p>Depois:</p>
+<pre><code>Monta uma carteira pra mim.
+</code></pre>
+<h2>O que acontece, na ordem</h2>
+<ol>
+<li><strong>Destino:</strong> ele pergunta onde você vai executar (ex.: Bybit ou robô <code>.mq5</code>). Isso muda
+   dados, custo e tipo de ordem. <em>Minerar no destino errado não dá erro: dá um backtest
+   aprovado com o custo da corretora errada.</em></li>
+<li><strong>Dados:</strong> baixa o necessário (minutos).</li>
+<li><strong>Porteiro:</strong> mede se cada ativo tem liquidez para o seu tamanho. Se não tem, <strong>recusa e
+   diz o número</strong>. Isso é o produto funcionando.</li>
+<li><strong>Mineração:</strong> gera candidatas e valida em <strong>três fatias de tempo</strong> — a última é um
+   <strong>trimestre selado</strong> que nada influenciou (minutos a horas).</li>
+<li><strong>Carteira:</strong> monta, mede correlação e põe em <strong>simulação com preço real</strong> (papel).</li>
+</ol>
+<blockquote>
+<p><strong>Espere recusas.</strong> O funil descarta mais de 99% das candidatas. Poucas e sólidas é o
+objetivo. "Mineração salvou zero" com motivo escrito é melhor que dez estratégias ruins.</p>
+</blockquote></section>
+<section class="pagina" id="pg-aula-06" data-id="aula-06" hidden><h1>Aula 06 — Acompanhar a carteira</h1>
+<p><strong>Objetivo:</strong> ler o que importa — e não a curva bonita.</p>
+<p>Pergunte: <strong>"Como está minha carteira?"</strong> e leia três números antes de qualquer conclusão:</p>
+<table>
+<thead>
+<tr>
+<th>Número</th>
+<th>O que mostra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retorno sobre o capital em risco</strong></td>
+<td>Quanto rendeu sobre o que estava de fato posicionado, não sobre a conta inteira</td>
+</tr>
+<tr>
+<td><strong>Ocupação</strong></td>
+<td>Quanto do tamanho planejado está no mercado. Gap alto = ordem que não está entrando</td>
+</tr>
+<tr>
+<td><strong>Bloqueios da corretora</strong></td>
+<td>Recusas que exigem ação sua, já com a ação escrita</td>
+</tr>
+</tbody>
+</table>
+<h2>Aderência: previsto contra realizado</h2>
+<p>O painel compara, linha por linha, o que o estudo previu com o que a conta está fazendo:</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Previsto</th>
+<th>Ao vivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Taxa de acerto</td>
+<td>50,08%</td>
+<td>50,00%</td>
+</tr>
+<tr>
+<td>Ritmo de operações</td>
+<td>15,0/dia</td>
+<td>4,0/dia</td>
+</tr>
+<tr>
+<td>Risco consumido</td>
+<td>13,2%</td>
+<td>0,01%</td>
+</tr>
+</tbody>
+</table>
+<p><em>(valores ilustrativos do próprio site)</em></p>
+<p>É uma <strong>leitura de comportamento, não de retorno</strong>: se a operação real se afasta do que o
+teste prometeu, algo mudou — e você descobre cedo.</p>
+<h2>Três formas de ver a mesma informação</h2>
+<p>O painel se adapta a quem olha: <strong>terminal</strong> (para quem opera), <strong>diário</strong> em português com
+cada decisão e o motivo (para quem está aprendendo) ou <strong>um personagem que avisa</strong> (para quem
+não quer pensar nisso). Exemplo do diário: <em>"14:32 recusou — TAO · ordem pequena demais"</em>.</p></section>
+<section class="pagina" id="pg-aula-07" data-id="aula-07" hidden><h1>Aula 07 — Licença, corretora e dinheiro real</h1>
+<p><strong>Objetivo:</strong> passar da simulação para o real com todas as travas no lugar.</p>
+<h2>1. Comprar e ativar</h2>
+<p>Ao pedir <em>"põe ao vivo"</em>, o motor recusa e devolve o endereço de compra. A chave chega por
+e-mail (formato <code>MM-…</code>). Cole no chat: <em>"Ativa a licença: MM-XXXX-…"</em>. Ela fica <strong>travada
+naquela máquina</strong>. O agente <strong>nunca adivinha, gera ou completa</strong> uma chave.</p>
+<h2>2. Cadastrar a corretora — só você, na tela</h2>
+<p>No painel: <strong>Configurações → Conexões → Nova conexão</strong>. A chave de API é digitada <strong>na
+página, nunca no chat</strong>. Use chave <strong>sem permissão de saque</strong> e só com permissão de
+negociação. Sem IP fixo, ela vence em 90 dias (o agente avisa 14 dias antes).</p>
+<h2>3. Armar o LIVE — o portão humano</h2>
+<p>O agente prepara tudo (carteira, tamanhos, stops), mas <strong>não arma sozinho</strong>. No painel:
+<strong>Monitor → Armar LIVE</strong>, com confirmação e um segundo fator digitado por você.</p>
+<blockquote>
+<p><strong>Atenção (está nos Termos de Uso):</strong> definir um limite de perda tolerada no aplicativo
+<strong>não faz a plataforma ajustar os tamanhos sozinha</strong> para respeitá-lo. Esse limite se
+atinge na composição da carteira e no dimensionamento que <strong>você</strong> escolhe. Confira os
+tamanhos antes de armar.</p>
+</blockquote>
+<h2>Depois de armado</h2>
+<ul>
+<li><strong>Parar tudo, o agente pode</strong> (chave de corte). <strong>Destravar, só você.</strong></li>
+<li>Stop e alvo ficam <strong>na corretora</strong> como ordens próprias: se o computador desligar, a
+  proteção continua — só param as novas entradas.</li>
+<li>Para operar com o computador desligado, o caminho é um servidor (VPS).</li>
+<li>O dinheiro <strong>não sai da sua conta</strong>: o sistema não recebe, não guarda e não saca.</li>
+</ul>
+<blockquote>
+<p>Comece pequeno. O site informa que alguns ativos aceitam ordem com cerca de US$ 6 de
+margem — dá para ver tudo funcionando antes de escalar. Lembre do aviso de risco no início.</p>
+</blockquote></section>
+<section class="pagina" id="pg-aula-08" data-id="aula-08" hidden><h1>Aula 08 — Problemas comuns</h1>
+<table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa e solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O Claude só tem ferramentas <code>algomaker_*</code></td>
+<td>Motor não ligado ou Claude não reiniciado. Peça "instala o AlgoMaker nesta máquina" e reinicie</td>
+</tr>
+<tr>
+<td>O conector não mostra "Detectado"</td>
+<td>URL errada: tem que ser exatamente <code>https://algomakers.com/mcp</code></td>
+</tr>
+<tr>
+<td>Mandaram baixar um instalador <code>.exe</code></td>
+<td>Não existe mais. Instala-se só o motor; a tela é o painel no navegador</td>
+</tr>
+<tr>
+<td><code>uvx: command not found</code></td>
+<td>Instale o <code>uv</code> e feche e abra o terminal</td>
+</tr>
+<tr>
+<td>"porteiro recusou a campanha"</td>
+<td>Ativo sem liquidez para o seu lote, ou dado insuficiente. Ajuste capital, ativo ou tempo gráfico</td>
+</tr>
+<tr>
+<td>Mineração salvou zero</td>
+<td>Normal em campanhas curtas. Aumente população/gerações ou troque de ativo</td>
+</tr>
+<tr>
+<td>Ordem recusada "regulatory restrictions"</td>
+<td>A corretora bloqueou a conta naquele contrato. Fale com o suporte dela</td>
+</tr>
+<tr>
+<td>Chave de API "invalid"</td>
+<td>Venceu, foi revogada ou é de outra região. Gere outra e cadastre de novo</td>
+</tr>
+<tr>
+<td>Página de confirmação "expirou"</td>
+<td>Vale poucos minutos. Peça outra ao agente</td>
+</tr>
+<tr>
+<td>Atualizei e os robôs pararam</td>
+<td>Instalar reinicia o app. Abra o Monitor e relance</td>
+</tr>
+</tbody>
+</table>
+<p>Suporte humano do produto: support@algomakers.com.</p></section>
+<section class="pagina" id="pg-aula-09" data-id="aula-09" hidden><h1>Aula 09 — O funil cético</h1>
+<p><strong>Objetivo:</strong> entender os testes que separam padrão de sorte — o coração do método.</p>
+<h2>As quatro perguntas, nesta ordem</h2>
+<ol>
+<li><strong>Ela funciona onde nunca olhou?</strong> Um pedaço do histórico é guardado e ninguém o usa para
+   decidir (<strong>janela selada</strong>). Se a estratégia só acerta no trecho que usou para se montar,
+   ela <strong>decorou</strong>. É aqui que a maioria cai.</li>
+<li><strong>Ela aguenta um mercado diferente?</strong> Ninguém prevê o futuro, mas dá para saber se o
+   resultado sobrevive quando você <strong>mexe nos próprios números</strong> dela.</li>
+<li><strong>O que segura a queda?</strong> Limite de perda por operação e por dia escrito <strong>antes</strong>, com a
+   proteção registrada na corretora.</li>
+<li><strong>E o custo?</strong> O teste é refeito com custo <strong>mais caro</strong> do que a corretora cobra.</li>
+</ol>
+<h2>Os termos, em português claro</h2>
+<table>
+<thead>
+<tr>
+<th>Termo</th>
+<th>O que é</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fora da amostra</strong></td>
+<td>Testar em dados que não foram usados para criar a estratégia</td>
+</tr>
+<tr>
+<td><strong>Walk-forward</strong></td>
+<td>Ajustar num período, testar no seguinte, avançar a janela e repetir</td>
+</tr>
+<tr>
+<td><strong>Monte Carlo</strong></td>
+<td>Embaralhar/sortear a sequência de resultados milhares de vezes para ver o pior caso plausível</td>
+</tr>
+<tr>
+<td><strong>Estresse de custo</strong></td>
+<td>Refazer a conta com taxa e escorregamento maiores que os reais</td>
+</tr>
+<tr>
+<td><strong>Porteiro / pré-voo</strong></td>
+<td>Recusar antes de gastar processamento, dizendo por que daria zero</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Honestidade de custo:</strong> a tabela de custo usada na pesquisa é a mesma que o executor
+cobra. <strong>A pesquisa não pode ser mais barata que a realidade.</strong></p>
+</blockquote></section>
+<section class="pagina" id="pg-aula-10" data-id="aula-10" hidden><h1>Aula 10 — Contenção: os controles que tornam isso confiável</h1>
+<p><strong>Objetivo:</strong> conhecer as travas que valem para qualquer sistema operado por IA.</p>
+<table>
+<thead>
+<tr>
+<th>Controle</th>
+<th>Como funciona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Portão humano</strong></td>
+<td>Armar capital real e cadastrar chaves são ações humanas na tela. O agente prepara, monitora e desliga — não se liga sozinho</td>
+</tr>
+<tr>
+<td><strong>Recusa por projeto</strong></td>
+<td>Sem mandato (capital, queda máxima, objetivo, horizonte), o funil se recusa a rodar</td>
+</tr>
+<tr>
+<td><strong>Pré-voo</strong></td>
+<td>Antes de gastar horas de máquina, confere restrições e explica por que daria zero</td>
+</tr>
+<tr>
+<td><strong>Chave de corte</strong></td>
+<td>Parar e encerrar são operações de primeira classe, chamáveis a qualquer momento</td>
+</tr>
+<tr>
+<td><strong>Local primeiro</strong></td>
+<td>Detalhes ficam na máquina do operador; só saem agregados anônimos</td>
+</tr>
+<tr>
+<td><strong>Honestidade de custo</strong></td>
+<td>A pesquisa usa o mesmo custo que a execução cobra</td>
+</tr>
+</tbody>
+</table>
+<h2>"Por arquitetura, não por promessa"</h2>
+<p>O ponto mais importante: o agente <strong>não tem</strong> a função de armar dinheiro real ou gravar chave
+de corretora. Não é uma regra que ele "promete" seguir — <strong>a rota não existe</strong>. Contenção
+boa é aquela que não depende da boa vontade da IA.</p>
+<h2>Inteligência de frota</h2>
+<p>O dado raro não é o histórico de preço (todo mundo tem o mesmo). É o <strong>par</strong>: o que o teste
+prometeu e o que executar custou de verdade. O AlgoMaker devolve esse custo <strong>medido</strong> para
+apertar o funil. Isso só acontece com consentimento, perguntado uma vez antes do primeiro
+LIVE: saem percentuais anônimos e, no mesmo consentimento, o total de volume negociado —
+nunca chaves, saldos, posições ou ordem a ordem. Com isso, uma estratégia que só
+sobrevive com premissa otimista de execução deixa de ser aprovada.</p></section>
+<section class="pagina" id="pg-aula-11" data-id="aula-11" hidden><h1>Aula 11 — A mesa comercial da HN operada por agentes</h1>
+<p><strong>Objetivo:</strong> levar a arquitetura para a gestão comercial e de marketing da HN.</p>
+<h2>Os cinco postos, traduzidos</h2>
+<table>
+<thead>
+<tr>
+<th>Posto na mesa</th>
+<th>Posto na HN</th>
+<th>O agente faz</th>
+<th>Entrega</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macro</td>
+<td><strong>Inteligência de mercado</strong></td>
+<td>Lê sazonalidade, concorrência, calendário do cliente</td>
+<td>Quanto a verba pode estar exposta no mês</td>
+</tr>
+<tr>
+<td>Quant</td>
+<td><strong>Hipóteses de campanha</strong></td>
+<td>Transforma ideia em teste com janela selada</td>
+<td>Variantes aprovadas/reprovadas com motivo</td>
+</tr>
+<tr>
+<td>Programador</td>
+<td><strong>Automação</strong></td>
+<td>Escreve integrações, relatórios, scripts</td>
+<td>Código versionado e conferível</td>
+</tr>
+<tr>
+<td>Risco e compliance</td>
+<td><strong>Verba, marca e LGPD</strong></td>
+<td>Confere cada ação contra o mandato</td>
+<td>Recusa com motivo, nunca exceção</td>
+</tr>
+<tr>
+<td>Execução</td>
+<td><strong>Operação de mídia e CRM</strong></td>
+<td>Prepara publicação, segmentação, cadência</td>
+<td>Tudo pronto para o humano aprovar</td>
+</tr>
+</tbody>
+</table>
+<h2>O mandato comercial</h2>
+<p>Assim como o AlgoMaker não minera sem capital, queda máxima, objetivo e horizonte, a mesa da
+HN não analisa nada sem <strong>objetivo, verba, CPA máximo e horizonte</strong>. O modelo está em
+<code>algomaker/modelos/mandato.json</code> e o guia de preenchimento em
+<code>algomaker/modelos/mandato-comercial.md</code>.</p>
+<h2>O que o agente da HN NUNCA faz</h2>
+<ul>
+<li><strong>Gastar ou aumentar verba</strong> — só o humano, na plataforma de anúncios.</li>
+<li><strong>Publicar anúncio</strong> ou <strong>enviar mensagem</strong> a clientes/leads.</li>
+<li><strong>Mudar preço, oferta ou contrato.</strong></li>
+</ul>
+<p>Ele <strong>prepara, analisa, recomenda e registra</strong>. Igual ao AlgoMaker: <em>parar</em> ele pode
+(pausar um teste que estourou o mandato pode ser uma função liberada); <em>ligar</em> dinheiro é
+sempre humano.</p>
+<h2>Exercício HN</h2>
+<p>Preencha o mandato de um cliente real da HN usando <code>mandato-comercial.md</code>.</p></section>
+<section class="pagina" id="pg-aula-12" data-id="aula-12" hidden><h1>Aula 12 — O funil de campanhas da HN</h1>
+<p><strong>Objetivo:</strong> aplicar o funil cético a criativos, ofertas e públicos.</p>
+<h2>A tradução do funil</h2>
+<table>
+<thead>
+<tr>
+<th>Portão do AlgoMaker</th>
+<th>Portão na HN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Porteiro (liquidez para o lote)</td>
+<td><strong>Amostra mínima</strong> de conversões nos dois períodos</td>
+</tr>
+<tr>
+<td>Fora da amostra (trimestre selado)</td>
+<td><strong>Período selado</strong>: CPA dentro do teto e conversão sem desabar</td>
+</tr>
+<tr>
+<td>Robustez (Monte Carlo)</td>
+<td><strong>Probabilidade</strong> de o CPA real ficar dentro do teto</td>
+</tr>
+<tr>
+<td>Estresse de custo</td>
+<td><strong>CPA com custo +25%</strong> continua dentro do teto</td>
+</tr>
+</tbody>
+</table>
+<p>O <strong>período selado</strong> é a chave: separe as últimas semanas da campanha e <strong>não use esse
+pedaço para decidir nada</strong> durante o ajuste. Só no fim você olha. Variante que só funcionou
+no período em que foi otimizada <strong>decorou</strong> o público — e vai decepcionar quando escalar.</p>
+<h2>Rodando o funil (ferramenta pronta e testada)</h2>
+<p>O CSV tem uma linha por variante e período (<code>treino</code> ou <code>selado</code>):</p>
+<pre><code>variante,periodo,impressoes,cliques,conversoes,gasto
+gancho-resultado-cliente,treino,52000,1610,71,3900.00
+gancho-resultado-cliente,selado,25000,790,34,1880.00
+</code></pre>
+<pre><code>python3 algomaker/ferramentas/funil_campanhas.py algomaker/modelos/exemplo-campanhas.csv --cpa-max 80
+</code></pre>
+<p>Resultado real do exemplo:</p>
+<pre><code>variante                  CPA treino  CPA selado  P(teto)  status
+gancho-dor-processo            60.00       59.63        —  REPROVADA  [porteiro] amostra pequena: 27 conversões, mínimo 30
+gancho-resultado-cliente       54.93       55.29      98%  APROVADA  [—] passou nos 4 portões
+oferta-diagnostico-gratis       42.00       46.67     100%  APROVADA  [—] passou nos 4 portões
+promocao-relampago             40.00       95.00        —  REPROVADA  [fora da amostra] CPA selado R$ 95.00 acima do teto R$ 80.00
+video-depoimento               50.86       72.22        —  REPROVADA  [fora da amostra] conversão caiu 33% no período selado (máx. 30%)
+carrossel-metodo               67.35       74.19      70%  REPROVADA  [robustez] só 70% de chance de o CPA ficar no teto (mín. 80%)
+publico-donos-pme              46.44       68.00      97%  REPROVADA  [estresse de custo] com custo +25% o CPA vira R$ 85.00
+
+2 de 7 variantes aprovadas. Reprovar é o funil funcionando.
+</code></pre>
+<p>Repare na <code>promocao-relampago</code>: o <strong>melhor CPA no treino</strong> (R$ 40) e o <strong>pior no selado</strong>
+(R$ 95). Sem o período selado, seria a primeira a receber verba.</p>
+<h2>Ajustes do funil</h2>
+<p><code>--min-conversoes 30</code> · <code>--queda-max 0.30</code> · <code>--prob-min 0.80</code> · <code>--estresse 1.25</code>.
+Ajuste ao cliente, <strong>antes</strong> de rodar — mudar a régua depois de ver o resultado é decorar.</p></section>
+<section class="pagina" id="pg-aula-13" data-id="aula-13" hidden><h1>Aula 13 — Previsto contra realizado e o diário de decisões</h1>
+<p><strong>Objetivo:</strong> prestar contas ao cliente do que foi prometido — como o painel de aderência.</p>
+<h2>O painel de aderência da HN</h2>
+<p>Toda variante aprovada sai do funil com um <strong>previsto</strong> (CPA, taxa de conversão, ritmo de
+conversões por semana). Quando a verba escala, compare toda semana:</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Previsto (selado)</th>
+<th>Realizado (escala)</th>
+<th>Leitura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPA</td>
+<td>R$ 46,67</td>
+<td>R$ 51,20</td>
+<td>dentro do teto, +10%</td>
+</tr>
+<tr>
+<td>Taxa de conversão</td>
+<td>4,6%</td>
+<td>4,3%</td>
+<td>estável</td>
+</tr>
+<tr>
+<td>Conversões/semana</td>
+<td>24</td>
+<td>21</td>
+<td>ocupação 88%</td>
+</tr>
+</tbody>
+</table>
+<p>Se o realizado se afasta do previsto, <strong>algo mudou</strong> (público saturou, concorrência, oferta
+cansou) — e você vê antes de queimar a verba. O modelo de relatório está em
+<code>algomaker/modelos/painel-aderencia.md</code>.</p>
+<h2>O diário de decisões</h2>
+<p>Cada decisão (escalar, pausar, reprovar) é registrada <strong>com o motivo e os números</strong>. É o que
+transforma "achamos que funcionou" em um histórico que o cliente consegue auditar — e o que
+diferencia a HN de uma agência que só mostra print de resultado.</p></section>
+<section class="pagina" id="pg-aula-14" data-id="aula-14" hidden><h1>Aula 14 — Montando a mesa da HN com Claude Code</h1>
+<p><strong>Objetivo:</strong> ligar tudo no Claude Code, com a mesma arquitetura do AlgoMaker.</p>
+<h2>Camada 1 — A doutrina (skill)</h2>
+<p>A skill <code>.claude/skills/mesa-comercial-hn/SKILL.md</code> ensina o agente a trabalhar como a mesa:
+mandato antes de ação, funil antes de verba, portão humano, registro de tudo. O Claude Code
+carrega sozinho quando você trabalha neste repositório.</p>
+<h2>Camada 2 — As funções (servidor MCP)</h2>
+<p>O servidor <code>algomaker/ferramentas/mcp_mesa_hn.py</code> expõe as operações da mesa como funções:</p>
+<table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mandato_ler</code></td>
+<td>Lê objetivo, verba, CPA máximo e o que exige aprovação humana</td>
+</tr>
+<tr>
+<td><code>funil_avaliar</code></td>
+<td>Passa as variantes pelos 4 portões — <strong>recusa se não houver mandato</strong></td>
+</tr>
+<tr>
+<td><code>diario_registrar</code></td>
+<td>Grava a decisão com motivo e números</td>
+</tr>
+<tr>
+<td><code>diario_ler</code></td>
+<td>Lê as últimas decisões</td>
+</tr>
+</tbody>
+</table>
+<p>E, <strong>de propósito, não existe</strong> ferramenta para gastar verba, publicar ou enviar mensagem.
+Contenção por arquitetura, não por promessa.</p>
+<p>Instalar e registrar (na raiz do repositório):</p>
+<pre><code>pip install mcp
+claude mcp add mesa-hn -- python3 algomaker/ferramentas/mcp_mesa_hn.py
+</code></pre>
+<p>Reinicie o Claude Code e confira com <code>/mcp</code>. Depois é só conversar:</p>
+<pre><code>Leia o mandato e passe as campanhas de algomaker/modelos/exemplo-campanhas.csv
+pelo funil. Registre no diário a recomendação para cada aprovada.
+</code></pre>
+<blockquote>
+<p><strong>Testado:</strong> com um cliente MCP real, o servidor listou as 4 ferramentas, aprovou 2 de 7
+variantes, gravou e leu o diário — e recusou rodar quando o mandato foi removido.</p>
+</blockquote>
+<h2>Camada 3 — Próximos passos</h2>
+<p>Quando a mesa estiver madura, novas funções entram uma de cada vez, sempre com trava:
+<code>relatorio_meta_ads(periodo)</code> (só leitura), <code>crm_leads(desde)</code> (só leitura),
+<code>pausar_variante(id)</code> (parar é permitido — como a chave de corte). <strong>Ligar verba nunca entra.</strong></p></section>
+<section class="pagina" id="pg-bonus-01" data-id="bonus-01" hidden><h1>Bônus 01 — O funil de vendas do AlgoMaker (para a HN copiar)</h1>
+<p><strong>Objetivo:</strong> estudar como o AlgoMaker vende — é gestão comercial de primeira, e a HN pode
+aplicar para os próprios clientes.</p>
+<h2>1. Uma página por público</h2>
+<table>
+<thead>
+<tr>
+<th>Página</th>
+<th>Público</th>
+<th>Tom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Institucional (<code>/</code>, em 5 idiomas)</td>
+<td>Mesas, family offices, gestoras</td>
+<td>Técnico, cético, "veja o funil reprovar"</td>
+</tr>
+<tr>
+<td>"Em português claro" (<code>/comprar</code>)</td>
+<td>Quem investe e não programa</td>
+<td>Analogias: "um escritório onde quem opera são agentes"</td>
+</tr>
+<tr>
+<td>Plataforma (<code>/plataforma</code>)</td>
+<td>Quem já decidiu</td>
+<td>Preço, "no ar em 20 minutos", FAQ, garantia</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Para a HN:</strong> a mesma oferta, contada de três jeitos, para três níveis de consciência.</p>
+<h2>2. "Para quem isto NÃO é"</h2>
+<p>O site diz com todas as letras: <em>"Se você procura sinal, conta gerida ou retorno alvo, esta é
+a porta errada — e é melhor saber agora."</em> Desqualificar aumenta a confiança de quem fica e
+economiza o tempo do comercial.</p>
+<h2>3. O quiz que qualifica e educa (<code>/algomakerquiz</code>)</h2>
+<p>Um questionário curto (~4 minutos) que pergunta qual IA você já usa, o que te descreve, o que quer operar,
+quanto pretende colocar, qual relação risco/retorno espera, em quais padrões já acreditou e o
+que te trava. Cada resposta <strong>ensina algo</strong> ("abaixo de certo valor o custo come qualquer
+resultado") e <strong>segmenta</strong> o lead. No fim: <em>"A maioria vai ser reprovada. Inclusive as
+minhas."</em></p>
+<h2>4. O diagnóstico que coloca o problema em reais (<code>/diagnostico</code>)</h2>
+<p>Vídeo de 3 minutos → 5 blocos (dados, renda, objetivo, travas, tentativas anteriores, horas
+por dia gastas) → <strong>a página calcula o custo anual do tempo gasto tentando resolver sozinho</strong>
+→ escolha de turnos para uma ligação de 30 minutos com um consultor que <strong>já chega com o
+diagnóstico na mão</strong>. "Uma sessão por pessoa" cria escassez honesta.</p>
+<p><strong>Para a HN:</strong> um diagnóstico comercial que calcula, em reais, quanto o cliente perde por mês
+com lead não respondido, follow-up esquecido ou verba em criativo cansado — e agenda a
+reunião já com esse número.</p>
+<h2>5. A demonstração honesta</h2>
+<p>A chamada não é "veja nossos resultados", é <strong>"veja o funil reprovar uma estratégia, ao
+vivo"</strong>. Mostrar o que o método recusa vende mais rigor do que qualquer curva bonita.</p>
+<h2>6. Transparência como posicionamento</h2>
+<p>Avisos de risco em toda página, "sem promessa de retorno, sem taxa sobre o que você ganhar",
+e até a divulgação de que o link da corretora é <strong>parceria remunerada</strong>, dito na mesma
+resposta. Os termos declaram o rebate que recebem das corretoras "em linha com o espírito da
+Resolução CVM 179, ainda que não estejamos sujeitos a ela" — transparência que vira argumento
+de venda.</p></section>
+<section class="pagina" id="pg-bonus-02" data-id="bonus-02" hidden><h1>Bônus 02 — Riscos, ética e conformidade</h1>
+<ul>
+<li><strong>Trading:</strong> risco real de perda total. Nada aqui é recomendação. Comece em simulação,
+  depois com o mínimo, e nunca com dinheiro que fará falta.</li>
+<li><strong>A HN não deve operar o AlgoMaker em nome de clientes.</strong> Os Termos de Uso proíbem operar
+  em nome de terceiros sem habilitação legal, e gerir recurso de terceiros no Brasil exige
+  autorização da CVM. Usar para a própria conta é uma coisa; oferecer como serviço é outra.
+  A aplicação da HN é a <strong>arquitetura</strong> (Aulas 11–14), não a operação de mercado.</li>
+<li><strong>Chaves e senhas:</strong> nunca no chat. Chave de corretora sem permissão de saque.</li>
+<li><strong>Dados de clientes da HN (LGPD):</strong> a mesa processa localmente; não cole dados pessoais de
+  leads em ferramentas sem base legal. Prefira agregados (como a "frota" do AlgoMaker).</li>
+<li><strong>Promessas comerciais:</strong> copie o rigor, não a promessa. Nada de "retorno garantido" em
+  oferta da HN — nem de "CPA garantido".</li>
+<li><strong>Remuneração de parceiros:</strong> se a HN indicar ferramenta com comissão, diga isso junto.</li>
+</ul></section>
+<section class="pagina" id="pg-mandato" data-id="mandato" hidden><h1>Mandato comercial — guia de preenchimento</h1>
+<blockquote>
+<p>Sem mandato, a mesa não analisa nada. É proposital: é o mandato que impede o agente (e a
+equipe) de "otimizar" na direção errada. Preencha com o cliente, antes do primeiro teste.</p>
+</blockquote>
+<h2>A entrevista (5 perguntas)</h2>
+<ol>
+<li><strong>Objetivo:</strong> o que conta como resultado? (reunião agendada, venda, cadastro, mensagem no WhatsApp)</li>
+<li><strong>Verba:</strong> quanto pode ser gasto por mês? E por teste, no máximo?</li>
+<li><strong>Teto de custo:</strong> quanto, no máximo, vale pagar por um resultado (CPA máximo)?
+   <em>Dica: margem por venda × taxa de fechamento das reuniões = o máximo que se paga por reunião.</em></li>
+<li><strong>Horizonte:</strong> em quanto tempo vamos avaliar? (mínimo de 1 mês para ter amostra)</li>
+<li><strong>Aprovação humana:</strong> quem aprova gastar, publicar e falar com clientes?</li>
+</ol>
+<h2>Os campos (<code>mandato.json</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Exemplo</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cliente</code></td>
+<td>HN Gestão Comercial e Marketing</td>
+<td>Identificação</td>
+</tr>
+<tr>
+<td><code>objetivo</code></td>
+<td>gerar reuniões de diagnóstico</td>
+<td>O que conta como conversão</td>
+</tr>
+<tr>
+<td><code>verba_mensal</code></td>
+<td>15000</td>
+<td>Limite total do mês</td>
+</tr>
+<tr>
+<td><code>cpa_max</code></td>
+<td>80</td>
+<td>Teto que o funil usa para aprovar/reprovar</td>
+</tr>
+<tr>
+<td><code>verba_max_por_teste</code></td>
+<td>3000</td>
+<td>Quanto um teste pode consumir antes de ser avaliado</td>
+</tr>
+<tr>
+<td><code>queda_max_aceita</code></td>
+<td>0.30</td>
+<td>Quanto a conversão pode cair do treino para o selado</td>
+</tr>
+<tr>
+<td><code>horizonte_meses</code></td>
+<td>3</td>
+<td>Janela de avaliação</td>
+</tr>
+<tr>
+<td><code>canais</code></td>
+<td>Meta Ads, Google Ads</td>
+<td>Onde se executa (custo e público mudam por canal)</td>
+</tr>
+<tr>
+<td><code>aprovacao_humana_para</code></td>
+<td>gastar, publicar, enviar mensagem, mudar oferta</td>
+<td>O que o agente nunca faz</td>
+</tr>
+</tbody>
+</table>
+<h2>Regras</h2>
+<ul>
+<li><strong>Escreva antes, não depois.</strong> Mudar o teto depois de ver o resultado é decorar o resultado.</li>
+<li><strong>Um mandato por cliente.</strong> Custo, margem e público mudam tudo.</li>
+<li><strong>Revise no fim do horizonte</strong>, com o painel de aderência na mão.</li>
+</ul></section>
+<section class="pagina" id="pg-aderencia" data-id="aderencia" hidden><h1>Painel de aderência — relatório semanal</h1>
+<blockquote>
+<p>Previsto (o que a variante mostrou no período selado) contra realizado (o que ela entrega
+com a verba escalada). Leitura de comportamento: se divergir, algo mudou.</p>
+</blockquote>
+<p><strong>Cliente:</strong> <strong><em>_</em></strong><strong><em>_</em></strong>  <strong>Semana:</strong> <strong><em>_/</em></strong>_  <strong>Responsável:</strong> <strong><em>_</em></strong><strong><em>_</em></strong></p>
+<h2>Por variante</h2>
+<table>
+<thead>
+<tr>
+<th>Variante</th>
+<th>Métrica</th>
+<th>Previsto</th>
+<th>Realizado</th>
+<th>Diferença</th>
+<th>Leitura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>CPA (R$)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Taxa de conversão</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Conversões/semana</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Ocupação da verba (%)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Como ler</h2>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Sinal</th>
+<th>Ação (sempre aprovada por humano)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Realizado até 15% do previsto</td>
+<td>Aderente</td>
+<td>Manter</td>
+</tr>
+<tr>
+<td>CPA 15–30% acima do previsto</td>
+<td>Atenção</td>
+<td>Investigar público/criativo; não aumentar verba</td>
+</tr>
+<tr>
+<td>CPA acima do teto do mandato</td>
+<td>Fora do mandato</td>
+<td>Recomendar pausa (registrar no diário)</td>
+</tr>
+<tr>
+<td>Ocupação baixa (verba não gasta)</td>
+<td>Público pequeno ou lance baixo</td>
+<td>Revisar segmentação</td>
+</tr>
+</tbody>
+</table>
+<h2>Decisões da semana (vão para o diário)</h2>
+<table>
+<thead>
+<tr>
+<th>Decisão</th>
+<th>Motivo</th>
+<th>Números</th>
+<th>Aprovado por</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></section>
+<section class="pagina" id="pg-materiais" data-id="materiais" hidden><h1>Os materiais que acompanham o curso</h1>
+<ul>
+<li><strong>Mandato comercial</strong> → <code>algomaker/modelos/mandato-comercial.md</code> e <code>algomaker/modelos/mandato.json</code></li>
+<li><strong>Painel de aderência</strong> → <code>algomaker/modelos/painel-aderencia.md</code></li>
+<li><strong>Dados de exemplo</strong> → <code>algomaker/modelos/exemplo-campanhas.csv</code></li>
+<li><strong>Funil de campanhas</strong> → <code>algomaker/ferramentas/funil_campanhas.py</code></li>
+<li><strong>Servidor MCP da mesa</strong> → <code>algomaker/ferramentas/mcp_mesa_hn.py</code></li>
+<li><strong>Doutrina para o agente</strong> → <code>.claude/skills/mesa-comercial-hn/SKILL.md</code></li>
+</ul>
+<h1>Glossário rápido</h1>
+<ul>
+<li><strong>Agente de IA</strong> — IA que chama ferramentas e executa tarefas (Claude, Codex).</li>
+<li><strong>MCP</strong> — padrão aberto que liga o agente a ferramentas externas.</li>
+<li><strong>Mandato</strong> — objetivo, limite de perda/custo e horizonte escritos antes de qualquer ação.</li>
+<li><strong>Janela/período selado</strong> — dados guardados que ninguém usa para decidir; servem de prova final.</li>
+<li><strong>Walk-forward</strong> — ajustar num período, testar no seguinte e avançar.</li>
+<li><strong>Monte Carlo</strong> — milhares de sorteios para ver o resultado plausível, não só o médio.</li>
+<li><strong>Estresse de custo</strong> — refazer a conta com custo maior que o real.</li>
+<li><strong>Papel (paper trading)</strong> — operar com preço real e ordem simulada, sem dinheiro.</li>
+<li><strong>Portão humano</strong> — ação que só um humano pode executar, numa tela.</li>
+<li><strong>Chave de corte (kill-switch)</strong> — parar tudo, a qualquer momento.</li>
+<li><strong>Aderência</strong> — o realizado comparado ao que o teste previu.</li>
+<li><strong>CPA</strong> — custo por aquisição (gasto ÷ conversões).</li>
+</ul></section>
+<section class="pagina" id="pg-skill-mesa" data-id="skill-mesa" hidden><h1>Mesa comercial HN — doutrina para o agente</h1><p class="arquivo">Arquivo: <code>.claude/skills/mesa-comercial-hn/SKILL.md</code></p>
+<h2>Antes de responder</h2>
+<ol>
+<li><strong>Mandato primeiro.</strong> Leia <code>algomaker/modelos/mandato.json</code> (ou chame <code>mandato_ler</code> se o
+   servidor <code>mesa-hn</code> estiver ligado). Sem objetivo, verba, CPA máximo e horizonte, <strong>recuse a
+   análise</strong> e conduza o preenchimento com <code>algomaker/modelos/mandato-comercial.md</code>.</li>
+<li><strong>Dado, não opinião.</strong> Toda recomendação vem com o número que a sustenta. Nunca responda
+   de cabeça sobre desempenho: rode o funil.</li>
+</ol>
+<h2>O funil (nunca pule portões)</h2>
+<p>Use <code>algomaker/ferramentas/funil_campanhas.py</code> (ou <code>funil_avaliar</code>). Ordem: porteiro (amostra
+mínima) → fora da amostra (período selado) → robustez (Monte Carlo) → estresse de custo.
+- O período <strong>selado</strong> nunca é usado para ajustar nada. Se o usuário quiser "olhar só um
+  pouquinho", explique que isso invalida o teste.
+- Reprovar é o funil funcionando. Diga o portão e o número que reprovou.
+- Não mude a régua (CPA máximo, mínimos) depois de ver o resultado.</p>
+<h2>O que você NUNCA faz</h2>
+<ul>
+<li>Gastar, aumentar ou realocar verba.</li>
+<li>Publicar anúncio, enviar mensagem a clientes ou leads.</li>
+<li>Mudar preço, oferta ou contrato.
+Você <strong>prepara, analisa, recomenda e registra</strong>. A execução é humana, na plataforma.
+Recomendar <strong>pausa</strong> de algo fora do mandato é permitido e esperado.</li>
+</ul>
+<h2>Prestar contas</h2>
+<ul>
+<li>Registre cada recomendação no diário (<code>diario_registrar</code> ou
+  <code>algomaker/diario-de-decisoes.md</code>) com decisão, motivo e números.</li>
+<li>Para variantes já escaladas, compare previsto x realizado com
+  <code>algomaker/modelos/painel-aderencia.md</code>.</li>
+</ul>
+<h2>Tom</h2>
+<p>Honestidade &gt; promessa. Nunca prometa CPA, retorno ou resultado. Poucas variantes sólidas
+valem mais que muitas "promissoras".</p></section>
+<section class="pagina" id="pg-ferramentas" data-id="ferramentas" hidden><h1>Ferramentas da mesa comercial</h1>
+<p>Requer <strong>Python 3</strong>. O funil não precisa de nenhuma biblioteca; o servidor MCP precisa do
+pacote <code>mcp</code>.</p>
+<h2>Funil de campanhas</h2>
+<p>Passa cada variante pelos 4 portões: porteiro, fora da amostra, robustez e estresse de custo.</p>
+<pre><code>python3 algomaker/ferramentas/funil_campanhas.py algomaker/modelos/exemplo-campanhas.csv --cpa-max 80
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Padrão</th>
+<th>O que controla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cpa-max</code></td>
+<td>obrigatório</td>
+<td>Teto de custo por conversão do mandato (R$)</td>
+</tr>
+<tr>
+<td><code>--min-conversoes</code></td>
+<td><code>30</code></td>
+<td>Amostra mínima em cada período (porteiro)</td>
+</tr>
+<tr>
+<td><code>--queda-max</code></td>
+<td><code>0.30</code></td>
+<td>Queda máxima de conversão do treino para o selado</td>
+</tr>
+<tr>
+<td><code>--prob-min</code></td>
+<td><code>0.80</code></td>
+<td>Chance mínima de o CPA real ficar dentro do teto</td>
+</tr>
+<tr>
+<td><code>--estresse</code></td>
+<td><code>1.25</code></td>
+<td>Multiplicador de custo no teste de estresse</td>
+</tr>
+</tbody>
+</table>
+<p>Formato do CSV (uma linha por variante e período):</p>
+<pre><code>variante,periodo,impressoes,cliques,conversoes,gasto
+gancho-resultado-cliente,treino,52000,1610,71,3900.00
+gancho-resultado-cliente,selado,25000,790,34,1880.00
+</code></pre>
+<h2>Servidor MCP da mesa</h2>
+<p>Expõe <code>mandato_ler</code>, <code>funil_avaliar</code>, <code>diario_registrar</code> e <code>diario_ler</code> para o Claude.
+Não tem ferramenta para gastar verba, publicar ou mandar mensagem, e isso é proposital.</p>
+<pre><code>pip install mcp
+claude mcp add mesa-hn -- python3 algomaker/ferramentas/mcp_mesa_hn.py
+</code></pre>
+<p>Reinicie o Claude Code e confira com <code>/mcp</code>.</p>
+<h2>Atualizar este site</h2>
+<pre><code>pip install markdown
+python3 ferramentas/gerar_site.py
+</code></pre><h2>Código-fonte</h2>
+<details><summary><code>algomaker/ferramentas/funil_campanhas.py</code></summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Funil cético de campanhas: reprova a variante que só funciona no período em que foi ajustada.
+
+O CSV tem uma linha por variante e período:
+  variante,periodo,impressoes,cliques,conversoes,gasto
+  periodo = treino (onde a campanha foi ajustada) ou selado (período que ninguém usou para decidir)
+
+Portões, nesta ordem (a variante para no primeiro que reprova):
+  1. Porteiro       — amostra mínima de conversões nos dois períodos
+  2. Fora da amostra — CPA no período selado dentro do teto e sem desabar em relação ao treino
+  3. Robustez        — probabilidade (simulação Monte Carlo) de o CPA real ficar dentro do teto
+  4. Estresse de custo — CPA selado com custo inflado continua dentro do teto
+
+Uso:
+  python3 algomaker/ferramentas/funil_campanhas.py algomaker/modelos/exemplo-campanhas.csv --cpa-max 80
+&quot;&quot;&quot;
+import argparse
+import csv
+import random
+import sys
+from collections import defaultdict
+
+
+def carregar(caminho):
+    dados = defaultdict(dict)
+    with open(caminho, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:
+        for linha in csv.DictReader(f):
+            periodo = linha[&quot;periodo&quot;].strip().lower()
+            if periodo not in (&quot;treino&quot;, &quot;selado&quot;):
+                sys.exit(f&quot;Período inválido &#x27;{linha[&#x27;periodo&#x27;]}&#x27; na variante {linha[&#x27;variante&#x27;]}: use treino ou selado.&quot;)
+            dados[linha[&quot;variante&quot;].strip()][periodo] = {
+                &quot;impressoes&quot;: int(linha[&quot;impressoes&quot;]),
+                &quot;cliques&quot;: int(linha[&quot;cliques&quot;]),
+                &quot;conversoes&quot;: int(linha[&quot;conversoes&quot;]),
+                &quot;gasto&quot;: float(linha[&quot;gasto&quot;]),
+            }
+    return dados
+
+
+def cpa(p):
+    return p[&quot;gasto&quot;] / p[&quot;conversoes&quot;] if p[&quot;conversoes&quot;] else float(&quot;inf&quot;)
+
+
+def prob_cpa_dentro(p, cpa_max, simulacoes, rng):
+    &quot;&quot;&quot;Sorteia a taxa de conversão real (Beta) e mede quantas vezes o CPA fica dentro do teto.&quot;&quot;&quot;
+    if p[&quot;cliques&quot;] == 0:
+        return 0.0
+    custo_por_clique = p[&quot;gasto&quot;] / p[&quot;cliques&quot;]
+    dentro = 0
+    for _ in range(simulacoes):
+        taxa = rng.betavariate(p[&quot;conversoes&quot;] + 1, p[&quot;cliques&quot;] - p[&quot;conversoes&quot;] + 1)
+        if custo_por_clique / taxa &lt;= cpa_max:
+            dentro += 1
+    return dentro / simulacoes
+
+
+def avaliar(dados, cpa_max, min_conversoes=30, queda_max=0.30, prob_min=0.80, estresse=1.25,
+            simulacoes=4000, semente=7):
+    rng = random.Random(semente)
+    resultado = []
+    for nome, periodos in dados.items():
+        r = {&quot;variante&quot;: nome, &quot;status&quot;: &quot;REPROVADA&quot;, &quot;portao&quot;: &quot;&quot;, &quot;motivo&quot;: &quot;&quot;}
+        resultado.append(r)
+        if &quot;treino&quot; not in periodos or &quot;selado&quot; not in periodos:
+            r.update(portao=&quot;porteiro&quot;, motivo=&quot;falta o período treino ou selado&quot;)
+            continue
+        t, s = periodos[&quot;treino&quot;], periodos[&quot;selado&quot;]
+        r.update(cpa_treino=cpa(t), cpa_selado=cpa(s))
+
+        if min(t[&quot;conversoes&quot;], s[&quot;conversoes&quot;]) &lt; min_conversoes:
+            r.update(portao=&quot;porteiro&quot;,
+                     motivo=f&quot;amostra pequena: {min(t[&#x27;conversoes&#x27;], s[&#x27;conversoes&#x27;])} conversões, mínimo {min_conversoes}&quot;)
+            continue
+
+        taxa_t = t[&quot;conversoes&quot;] / t[&quot;cliques&quot;]
+        taxa_s = s[&quot;conversoes&quot;] / s[&quot;cliques&quot;]
+        if cpa(s) &gt; cpa_max:
+            r.update(portao=&quot;fora da amostra&quot;, motivo=f&quot;CPA selado R$ {cpa(s):.2f} acima do teto R$ {cpa_max:.2f}&quot;)
+            continue
+        if taxa_s &lt; taxa_t * (1 - queda_max):
+            r.update(portao=&quot;fora da amostra&quot;,
+                     motivo=f&quot;conversão caiu {100 * (1 - taxa_s / taxa_t):.0f}% no período selado (máx. {100 * queda_max:.0f}%)&quot;)
+            continue
+
+        prob = prob_cpa_dentro(s, cpa_max, simulacoes, rng)
+        r[&quot;prob&quot;] = prob
+        if prob &lt; prob_min:
+            r.update(portao=&quot;robustez&quot;, motivo=f&quot;só {100 * prob:.0f}% de chance de o CPA ficar no teto (mín. {100 * prob_min:.0f}%)&quot;)
+            continue
+
+        if cpa(s) * estresse &gt; cpa_max:
+            r.update(portao=&quot;estresse de custo&quot;,
+                     motivo=f&quot;com custo +{100 * (estresse - 1):.0f}% o CPA vira R$ {cpa(s) * estresse:.2f}&quot;)
+            continue
+
+        r.update(status=&quot;APROVADA&quot;, portao=&quot;—&quot;, motivo=&quot;passou nos 4 portões&quot;)
+    return resultado
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument(&quot;csv&quot;)
+    p.add_argument(&quot;--cpa-max&quot;, type=float, required=True, help=&quot;teto de custo por conversão do mandato (R$)&quot;)
+    p.add_argument(&quot;--min-conversoes&quot;, type=int, default=30)
+    p.add_argument(&quot;--queda-max&quot;, type=float, default=0.30, help=&quot;queda máxima de conversão do treino para o selado&quot;)
+    p.add_argument(&quot;--prob-min&quot;, type=float, default=0.80, help=&quot;chance mínima de o CPA real ficar dentro do teto&quot;)
+    p.add_argument(&quot;--estresse&quot;, type=float, default=1.25, help=&quot;multiplicador de custo no teste de estresse&quot;)
+    p.add_argument(&quot;--simulacoes&quot;, type=int, default=4000)
+    a = p.parse_args()
+
+    res = avaliar(carregar(a.csv), a.cpa_max, a.min_conversoes, a.queda_max, a.prob_min, a.estresse, a.simulacoes)
+    print(f&quot;{&#x27;variante&#x27;:&lt;24}{&#x27;CPA treino&#x27;:&gt;12}{&#x27;CPA selado&#x27;:&gt;12}{&#x27;P(teto)&#x27;:&gt;9}  status&quot;)
+    for r in res:
+        fmt = lambda v: &quot;—&quot; if v is None or v == float(&quot;inf&quot;) else f&quot;{v:.2f}&quot;
+        prob = f&quot;{100 * r[&#x27;prob&#x27;]:.0f}%&quot; if &quot;prob&quot; in r else &quot;—&quot;
+        print(f&quot;{r[&#x27;variante&#x27;]:&lt;24}{fmt(r.get(&#x27;cpa_treino&#x27;)):&gt;12}{fmt(r.get(&#x27;cpa_selado&#x27;)):&gt;12}{prob:&gt;9}  &quot;
+              f&quot;{r[&#x27;status&#x27;]}  [{r[&#x27;portao&#x27;]}] {r[&#x27;motivo&#x27;]}&quot;)
+    aprovadas = sum(r[&quot;status&quot;] == &quot;APROVADA&quot; for r in res)
+    print(f&quot;\n{aprovadas} de {len(res)} variantes aprovadas. Reprovar é o funil funcionando.&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+<details><summary><code>algomaker/ferramentas/mcp_mesa_hn.py</code></summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Servidor MCP da mesa comercial da HN: expõe o funil e o diário como ferramentas para o agente.
+
+Não existe ferramenta para gastar verba, publicar anúncio ou mandar mensagem: isso é decisão
+humana, na tela de cada plataforma. A ausência é proposital.
+
+Instalar e registrar no Claude Code (rode na raiz do repositório):
+  pip install mcp
+  claude mcp add mesa-hn -- python3 algomaker/ferramentas/mcp_mesa_hn.py
+&quot;&quot;&quot;
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+from mcp.server.fastmcp import FastMCP
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from funil_campanhas import avaliar, carregar  # noqa: E402
+
+BASE = Path(__file__).resolve().parent.parent
+MANDATO = BASE / &quot;modelos&quot; / &quot;mandato.json&quot;
+DIARIO = BASE / &quot;diario-de-decisoes.md&quot;
+
+mcp = FastMCP(&quot;mesa-hn&quot;)
+
+
+def _mandato():
+    if not MANDATO.exists():
+        return None
+    return json.loads(MANDATO.read_text(encoding=&quot;utf-8&quot;))
+
+
+@mcp.tool()
+def mandato_ler() -&gt; dict:
+    &quot;&quot;&quot;Lê o mandato comercial (objetivo, verba, CPA máximo, horizonte e o que exige aprovação humana).&quot;&quot;&quot;
+    m = _mandato()
+    return m or {&quot;erro&quot;: f&quot;sem mandato em {MANDATO}. Preencha antes de qualquer análise.&quot;}
+
+
+@mcp.tool()
+def funil_avaliar(csv_campanhas: str) -&gt; dict:
+    &quot;&quot;&quot;Passa as variantes de campanha pelos 4 portões (porteiro, fora da amostra, robustez, estresse de custo).
+
+    csv_campanhas: caminho do CSV com variante,periodo(treino|selado),impressoes,cliques,conversoes,gasto.
+    Usa o CPA máximo e a queda aceita do mandato. Sem mandato, recusa.
+    &quot;&quot;&quot;
+    m = _mandato()
+    if not m:
+        return {&quot;recusado&quot;: &quot;sem mandato definido: o funil não roda sem objetivo, verba e CPA máximo.&quot;}
+    caminho = Path(csv_campanhas)
+    if not caminho.is_absolute():
+        caminho = BASE.parent / caminho
+    if not caminho.exists():
+        return {&quot;erro&quot;: f&quot;arquivo não encontrado: {caminho}&quot;}
+    res = avaliar(carregar(caminho), m[&quot;cpa_max&quot;], queda_max=m.get(&quot;queda_max_aceita&quot;, 0.30))
+    aprovadas = [r[&quot;variante&quot;] for r in res if r[&quot;status&quot;] == &quot;APROVADA&quot;]
+    return {
+        &quot;cpa_max&quot;: m[&quot;cpa_max&quot;],
+        &quot;aprovadas&quot;: aprovadas,
+        &quot;resumo&quot;: f&quot;{len(aprovadas)} de {len(res)} aprovadas&quot;,
+        &quot;variantes&quot;: res,
+        &quot;lembrete&quot;: &quot;Aumentar verba ou publicar exige aprovação humana (mandato.aprovacao_humana_para).&quot;,
+    }
+
+
+@mcp.tool()
+def diario_registrar(decisao: str, motivo: str, dados: str = &quot;&quot;) -&gt; str:
+    &quot;&quot;&quot;Registra uma decisão ou recomendação no diário, com o motivo e os números que a sustentam.&quot;&quot;&quot;
+    agora = datetime.now().strftime(&quot;%Y-%m-%d %H:%M&quot;)
+    novo = not DIARIO.exists()
+    with DIARIO.open(&quot;a&quot;, encoding=&quot;utf-8&quot;) as f:
+        if novo:
+            f.write(&quot;# Diário de decisões — mesa comercial HN\n\n&quot;)
+        f.write(f&quot;## {agora} — {decisao}\n- **Motivo:** {motivo}\n&quot;)
+        if dados:
+            f.write(f&quot;- **Dados:** {dados}\n&quot;)
+        f.write(&quot;\n&quot;)
+    return f&quot;registrado em {DIARIO.name}&quot;
+
+
+@mcp.tool()
+def diario_ler(ultimas: int = 10) -&gt; str:
+    &quot;&quot;&quot;Lê as últimas decisões registradas no diário.&quot;&quot;&quot;
+    if not DIARIO.exists():
+        return &quot;diário vazio&quot;
+    blocos = DIARIO.read_text(encoding=&quot;utf-8&quot;).split(&quot;\n## &quot;)[1:]
+    return &quot;\n## &quot;.join([&quot;&quot;] + blocos[-ultimas:]).strip() or &quot;diário vazio&quot;
+
+
+if __name__ == &quot;__main__&quot;:
+    mcp.run()
+</code></pre></details>
+<details><summary><code>algomaker/modelos/mandato.json</code></summary><pre><code>{
+  &quot;cliente&quot;: &quot;HN Gestão Comercial e Marketing&quot;,
+  &quot;objetivo&quot;: &quot;gerar reuniões de diagnóstico com donos de PME&quot;,
+  &quot;verba_mensal&quot;: 15000,
+  &quot;cpa_max&quot;: 80,
+  &quot;verba_max_por_teste&quot;: 3000,
+  &quot;queda_max_aceita&quot;: 0.30,
+  &quot;horizonte_meses&quot;: 3,
+  &quot;canais&quot;: [&quot;Meta Ads&quot;, &quot;Google Ads&quot;],
+  &quot;aprovacao_humana_para&quot;: [
+    &quot;gastar ou aumentar verba&quot;,
+    &quot;publicar anúncio&quot;,
+    &quot;enviar mensagem a clientes ou leads&quot;,
+    &quot;mudar preço, oferta ou contrato&quot;
+  ]
+}
+</code></pre></details>
+<details><summary><code>algomaker/modelos/exemplo-campanhas.csv</code></summary><pre><code>variante,periodo,impressoes,cliques,conversoes,gasto
+gancho-dor-processo,treino,48000,1450,62,3720.00
+gancho-dor-processo,selado,21000,640,27,1610.00
+gancho-resultado-cliente,treino,52000,1610,71,3900.00
+gancho-resultado-cliente,selado,25000,790,34,1880.00
+oferta-diagnostico-gratis,treino,61000,2100,105,4410.00
+oferta-diagnostico-gratis,selado,30000,1050,48,2240.00
+promocao-relampago,treino,50000,1500,75,3000.00
+promocao-relampago,selado,26000,800,32,3040.00
+video-depoimento,treino,39000,1180,58,2950.00
+video-depoimento,selado,36000,1100,36,2600.00
+carrossel-metodo,treino,44000,1320,49,3300.00
+carrossel-metodo,selado,23000,700,31,2300.00
+publico-donos-pme,treino,58000,1900,90,4180.00
+publico-donos-pme,selado,71000,2400,120,8160.00
+</code></pre></details></section>
+<div class="rodape" id="rodape"></div>
+</main>
+</div>
+<script>
+const ORDEM=[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · A virada: o agente não finge ser mouse", "aula": true}, {"id": "aula-02", "rotulo": "02 · A mesa de cinco postos", "aula": true}, {"id": "aula-03", "rotulo": "03 · Preparar e ligar o conector", "aula": true}, {"id": "aula-04", "rotulo": "04 · Ligar o motor e abrir o painel", "aula": true}, {"id": "aula-05", "rotulo": "05 · O mandato e a primeira carteira", "aula": true}, {"id": "aula-06", "rotulo": "06 · Acompanhar a carteira", "aula": true}, {"id": "aula-07", "rotulo": "07 · Licença, corretora e dinheiro real", "aula": true}, {"id": "aula-08", "rotulo": "08 · Problemas comuns", "aula": true}, {"id": "aula-09", "rotulo": "09 · O funil cético", "aula": true}, {"id": "aula-10", "rotulo": "10 · Contenção: os controles que tornam isso confiável", "aula": true}, {"id": "aula-11", "rotulo": "11 · A mesa comercial da HN operada por agentes", "aula": true}, {"id": "aula-12", "rotulo": "12 · O funil de campanhas da HN", "aula": true}, {"id": "aula-13", "rotulo": "13 · Previsto contra realizado e o diário de decisões", "aula": true}, {"id": "aula-14", "rotulo": "14 · Montando a mesa da HN com Claude Code", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · O funil de vendas do AlgoMaker (para a HN copiar)", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Riscos, ética e conformidade", "aula": true}, {"id": "mandato", "rotulo": "Mandato comercial", "aula": false}, {"id": "aderencia", "rotulo": "Painel de aderência", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-mesa", "rotulo": "Mesa comercial HN", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}];
+const CHAVE="curso-mesa-hn-concluidas";
+function ler(){try{return new Set(JSON.parse(localStorage.getItem(CHAVE)||"[]"))}catch(e){return new Set()}}
+function gravar(s){try{localStorage.setItem(CHAVE,JSON.stringify([...s]))}catch(e){}}
+let feitas=ler();
+function atualizarProgresso(){
+  const aulas=ORDEM.filter(p=>p.aula);
+  const n=aulas.filter(p=>feitas.has(p.id)).length;
+  document.getElementById("progresso").textContent=n+"/"+aulas.length+" aulas";
+  document.getElementById("barra").style.width=(100*n/aulas.length)+"%";
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("feito",feitas.has(a.dataset.id)));
+}
+function mostrar(){
+  let id=location.hash.slice(1);
+  if(!ORDEM.some(p=>p.id===id))id="inicio";
+  document.querySelectorAll(".pagina").forEach(s=>s.hidden=s.dataset.id!==id);
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("ativo",a.dataset.id===id));
+  const i=ORDEM.findIndex(p=>p.id===id),p=ORDEM[i],ant=ORDEM[i-1],prox=ORDEM[i+1];
+  const r=document.getElementById("rodape");r.innerHTML="";
+  r.append(ant?link(ant,"← "+ant.rotulo):document.createElement("span"));
+  if(p.aula){
+    const b=document.createElement("button");b.className="concluir";
+    const pintar=()=>{const f=feitas.has(id);b.classList.toggle("feito",f);b.textContent=f?"✓ Aula concluída":"Marcar como concluída"};
+    b.onclick=()=>{feitas.has(id)?feitas.delete(id):feitas.add(id);gravar(feitas);pintar();atualizarProgresso()};
+    pintar();r.append(b);
+  }
+  if(prox)r.append(link(prox,prox.rotulo+" →"));
+  document.body.classList.remove("menu-aberto");
+  window.scrollTo(0,0);
+  document.title=p.rotulo+" · Mesa Operada por Agentes — Curso HN";
+}
+function link(p,t){const a=document.createElement("a");a.href="#"+p.id;a.textContent=t;return a}
+document.querySelectorAll("pre").forEach(pre=>{
+  const b=document.createElement("button");b.className="copiar";b.textContent="Copiar";
+  b.onclick=async()=>{
+    const t=pre.querySelector("code").innerText;
+    try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}
+    b.textContent="Copiado";setTimeout(()=>b.textContent="Copiar",1500);
+  };
+  pre.append(b);
+});
+window.addEventListener("hashchange",mostrar);
+atualizarProgresso();mostrar();
+</script>
+</body>
+</html>

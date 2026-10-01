@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Gera CURSO.html (e site/index.html): o curso inteiro numa página que abre no navegador, sem internet.
+"""Gera os cursos em páginas únicas que abrem no navegador com dois cliques, sem internet.
+
+  CURSO.html              Edição com IA (também em site/index.html)
+  CURSO-MESA-AGENTES.html Mesa Operada por Agentes
 
 Rode de novo sempre que editar os arquivos .md:
   pip install markdown
@@ -13,26 +16,58 @@ from pathlib import Path
 import markdown
 
 RAIZ = Path(__file__).resolve().parent.parent
-MANUAL = RAIZ / "curso" / "MANUAL-EDICAO-COM-IA-HN.md"
-TITULO = "Edição com IA — Curso HN"
 
-LINKS = {
-    "modelos/briefing.md": "#briefing",
-    "modelos/estrutura-de-pastas.md": "#pastas",
-    "modelos/ficha-de-revisao.md": "#revisao",
-    "modelos/guia-de-comandos.md": "#comandos",
-    ".claude/skills/": "#skill-estilo",
-    "ferramentas/cortar_silencios.py": "#ferramentas",
-    "ferramentas/legendar.py": "#ferramentas",
-    "ferramentas/": "#ferramentas",
-}
-
-SKILLS = [
-    ("estilo", "Estilo"),
-    ("ritmo", "Ritmo"),
-    ("legendas", "Legendas"),
-    ("movimento", "Movimento"),
-    ("composicao", "Composição"),
+CURSOS = [
+    {
+        "titulo": "Edição com IA — Curso HN",
+        "manual": "curso/MANUAL-EDICAO-COM-IA-HN.md",
+        "saidas": ["CURSO.html", "site/index.html"],
+        "chave": "curso-hn-concluidas",
+        "materiais": [
+            ("comandos", "Guia de comandos", "modelos/guia-de-comandos.md"),
+            ("briefing", "Modelo de briefing", "modelos/briefing.md"),
+            ("pastas", "Pasta modelo", "modelos/estrutura-de-pastas.md"),
+            ("revisao", "Ficha de revisão", "modelos/ficha-de-revisao.md"),
+        ],
+        "grupo_skills": "Skills de edição",
+        "skills": [
+            ("skill-estilo", "Estilo", ".claude/skills/edicao-estilo/SKILL.md"),
+            ("skill-ritmo", "Ritmo", ".claude/skills/edicao-ritmo/SKILL.md"),
+            ("skill-legendas", "Legendas", ".claude/skills/edicao-legendas/SKILL.md"),
+            ("skill-movimento", "Movimento", ".claude/skills/edicao-movimento/SKILL.md"),
+            ("skill-composicao", "Composição", ".claude/skills/edicao-composicao/SKILL.md"),
+        ],
+        "ferramentas": "ferramentas/LEIA-ME.md",
+        "codigo": ["ferramentas/cortar_silencios.py", "ferramentas/legendar.py", "ferramentas/gerar_site.py"],
+        "links": {
+            "modelos/briefing.md": "#briefing",
+            "modelos/estrutura-de-pastas.md": "#pastas",
+            "modelos/ficha-de-revisao.md": "#revisao",
+            "modelos/guia-de-comandos.md": "#comandos",
+            ".claude/skills/": "#skill-estilo",
+            "ferramentas/cortar_silencios.py": "#ferramentas",
+            "ferramentas/legendar.py": "#ferramentas",
+            "ferramentas/": "#ferramentas",
+        },
+    },
+    {
+        "titulo": "Mesa Operada por Agentes — Curso HN",
+        "manual": "algomaker/curso/MANUAL-MESA-OPERADA-POR-AGENTES-HN.md",
+        "saidas": ["CURSO-MESA-AGENTES.html"],
+        "chave": "curso-mesa-hn-concluidas",
+        "materiais": [
+            ("mandato", "Mandato comercial", "algomaker/modelos/mandato-comercial.md"),
+            ("aderencia", "Painel de aderência", "algomaker/modelos/painel-aderencia.md"),
+        ],
+        "grupo_skills": "Doutrina do agente",
+        "skills": [
+            ("skill-mesa", "Mesa comercial HN", ".claude/skills/mesa-comercial-hn/SKILL.md"),
+        ],
+        "ferramentas": "algomaker/ferramentas/LEIA-ME.md",
+        "codigo": ["algomaker/ferramentas/funil_campanhas.py", "algomaker/ferramentas/mcp_mesa_hn.py",
+                   "algomaker/modelos/mandato.json", "algomaker/modelos/exemplo-campanhas.csv"],
+        "links": {},
+    },
 ]
 
 
@@ -52,12 +87,12 @@ def limpar_separadores(texto):
     return re.sub(r"(^\s*---\s*$\n?)+\s*\Z", "", texto.strip(), flags=re.M).strip()
 
 
-def render(texto):
+def render(texto, links):
     corpo = markdown.markdown(texto, extensions=["tables", "fenced_code", "sane_lists"])
 
     def trocar(m):
         alvo = m.group(1)
-        for fim, ancora in LINKS.items():
+        for fim, ancora in links.items():
             if alvo.endswith(fim):
                 return f'href="{ancora}"'
         return m.group(0)
@@ -65,8 +100,8 @@ def render(texto):
     return re.sub(r'href="([^"#][^"]*)"', trocar, corpo)
 
 
-def secoes_do_manual():
-    texto = MANUAL.read_text(encoding="utf-8")
+def secoes_do_manual(curso):
+    texto = (RAIZ / curso["manual"]).read_text(encoding="utf-8")
     partes = re.split(r"(?m)^(?=## )", texto)
     cabecalho, secoes = partes[0], partes[1:]
     intro = [cabecalho.split("\n", 1)[1] if cabecalho.startswith("# ") else cabecalho]
@@ -83,84 +118,44 @@ def secoes_do_manual():
             final.append(limpar_separadores(s))
         else:
             intro.append(limpar_separadores(s))
-    inicio = f"# {TITULO}\n\n" + subir_titulos("\n\n".join(limpar_separadores(x) for x in intro))
+    inicio = f"# {curso['titulo']}\n\n" + subir_titulos("\n\n".join(limpar_separadores(x) for x in intro))
     materiais = subir_titulos("\n\n".join(final))
     return inicio, aulas, materiais
 
 
-def pagina_ferramentas():
-    blocos = []
-    for nome in ["cortar_silencios.py", "legendar.py", "gerar_site.py"]:
-        codigo = (RAIZ / "ferramentas" / nome).read_text(encoding="utf-8")
-        blocos.append(
-            f"<details><summary><code>ferramentas/{nome}</code></summary>"
-            f"<pre><code>{html.escape(codigo)}</code></pre></details>"
-        )
-    texto = """# Ferramentas
-
-Scripts que fazem o trabalho pesado no seu computador, sem gastar IA. Você pode
-rodar direto ou pedir para o Codex/Claude Code rodar por você.
-
-## Instalar
-Requer **ffmpeg** e **Python 3**. Depois:
-```
-pip install faster-whisper markdown
-```
-
-## Cortar pausas
-```
-python3 ferramentas/cortar_silencios.py 01-bruto/take-01.mp4 05-amostras/sem-pausas.mp4
-```
-| Opção | Padrão | Quando mudar |
-|---|---|---|
-| `--limiar` | `-32` | Abaixe para `-40` se estiver cortando falas baixas |
-| `--pausa` | `0.45` | Duração mínima (s) de uma pausa para ser cortada |
-| `--respiro` | `0.12` | Aumente se o corte ficar seco no início/fim das palavras |
-
-## Legenda dinâmica
-```
-python3 ferramentas/legendar.py 05-amostras/sem-pausas.mp4 --queimar --maiusculas --cor "#7C3AED" --destaque "HN,vendas"
-```
-Gera `.srt`, `.ass`, a transcrição em texto e, com `--queimar`, o vídeo legendado.
-Na primeira vez, baixa o modelo de transcrição (precisa de internet).
-
-## Atualizar este site
-Editou algum `.md`? Gere o site de novo:
-```
-python3 ferramentas/gerar_site.py
-```
-
-## Código-fonte
-"""
-    return render(texto) + "\n".join(blocos)
-
-
-def pagina_md(caminho, nota=None):
-    texto = caminho.read_text(encoding="utf-8")
+def pagina_md(caminho, links, nota=None):
+    texto = (RAIZ / caminho).read_text(encoding="utf-8")
     texto = re.sub(r"\A---\n.*?\n---\n", "", texto, flags=re.S)
-    corpo = render(texto)
+    corpo = render(texto, links)
     if nota:
         corpo = corpo.replace("</h1>", f'</h1><p class="arquivo">{nota}</p>', 1)
     return corpo
 
 
-def montar():
-    inicio, aulas, materiais = secoes_do_manual()
-    paginas = [("inicio", "Visão geral", "Começo", render(inicio))]
+def pagina_ferramentas(curso):
+    blocos = ["<h2>Código-fonte</h2>"]
+    for caminho in curso["codigo"]:
+        codigo = (RAIZ / caminho).read_text(encoding="utf-8")
+        blocos.append(
+            f"<details><summary><code>{html.escape(caminho)}</code></summary>"
+            f"<pre><code>{html.escape(codigo)}</code></pre></details>"
+        )
+    return pagina_md(curso["ferramentas"], curso["links"]) + "\n".join(blocos)
+
+
+def montar(curso):
+    links = curso["links"]
+    inicio, aulas, materiais = secoes_do_manual(curso)
+    paginas = [("inicio", "Visão geral", "Começo", render(inicio, links))]
     for pid, rotulo, tipo, texto in aulas:
-        paginas.append((pid, rotulo, "Aulas" if tipo == "Aula" else "Bônus", render(texto)))
-    paginas += [
-        ("comandos", "Guia de comandos", "Materiais", pagina_md(RAIZ / "modelos/guia-de-comandos.md")),
-        ("briefing", "Modelo de briefing", "Materiais", pagina_md(RAIZ / "modelos/briefing.md")),
-        ("pastas", "Pasta modelo", "Materiais", pagina_md(RAIZ / "modelos/estrutura-de-pastas.md")),
-        ("revisao", "Ficha de revisão", "Materiais", pagina_md(RAIZ / "modelos/ficha-de-revisao.md")),
-        ("materiais", "Materiais e glossário", "Materiais", render(materiais)),
-    ]
-    for slug, nome in SKILLS:
-        arq = RAIZ / f".claude/skills/edicao-{slug}/SKILL.md"
-        paginas.append((f"skill-{slug}", nome, "Skills de edição",
-                        pagina_md(arq, f"Arquivo: <code>.claude/skills/edicao-{slug}/SKILL.md</code>")))
-    paginas.append(("ferramentas", "Ferramentas", "Ferramentas", pagina_ferramentas()))
+        paginas.append((pid, rotulo, "Aulas" if tipo == "Aula" else "Bônus", render(texto, links)))
+    for pid, rotulo, caminho in curso["materiais"]:
+        paginas.append((pid, rotulo, "Materiais", pagina_md(caminho, links)))
+    paginas.append(("materiais", "Materiais e glossário", "Materiais", render(materiais, links)))
+    for pid, rotulo, caminho in curso["skills"]:
+        paginas.append((pid, rotulo, curso["grupo_skills"],
+                        pagina_md(caminho, links, f"Arquivo: <code>{html.escape(caminho)}</code>")))
+    paginas.append(("ferramentas", "Ferramentas", "Ferramentas", pagina_ferramentas(curso)))
 
     nav, grupo_atual = [], None
     for pid, rotulo, grupo, _ in paginas:
@@ -178,14 +173,14 @@ def montar():
         for pid, _, _, corpo in paginas
     )
     ordem = [{"id": p[0], "rotulo": p[1], "aula": p[0].startswith(("aula-", "bonus-"))} for p in paginas]
-    saida = MODELO.replace("{{TITULO}}", html.escape(TITULO))
+    saida = MODELO.replace("{{TITULO}}", html.escape(curso["titulo"])).replace("{{CHAVE}}", curso["chave"])
     saida = saida.replace("{{NAV}}", "\n".join(nav)).replace("{{SECOES}}", secoes)
     saida = saida.replace("{{ORDEM}}", json.dumps(ordem, ensure_ascii=False))
-    destino = RAIZ / "site" / "index.html"
-    destino.parent.mkdir(exist_ok=True)
-    destino.write_text(saida, encoding="utf-8")
-    (RAIZ / "CURSO.html").write_text(saida, encoding="utf-8")
-    print(f"{len(paginas)} páginas -> CURSO.html e {destino.relative_to(RAIZ)}")
+    for destino in curso["saidas"]:
+        arq = RAIZ / destino
+        arq.parent.mkdir(parents=True, exist_ok=True)
+        arq.write_text(saida, encoding="utf-8")
+    print(f"{curso['titulo']}: {len(paginas)} páginas -> {', '.join(curso['saidas'])}")
 
 
 MODELO = r"""<!doctype html>
@@ -231,7 +226,7 @@ table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:b
 th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
 th{background:var(--marca-suave)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
-pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:40px 16px 16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
 pre code{background:none;padding:0;color:inherit;white-space:pre}
 .copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
 .copiar:hover{background:#ffffff33}
@@ -270,7 +265,7 @@ h1{font-size:26px}
 </div>
 <script>
 const ORDEM={{ORDEM}};
-const CHAVE="curso-hn-concluidas";
+const CHAVE="{{CHAVE}}";
 function ler(){try{return new Set(JSON.parse(localStorage.getItem(CHAVE)||"[]"))}catch(e){return new Set()}}
 function gravar(s){try{localStorage.setItem(CHAVE,JSON.stringify([...s]))}catch(e){}}
 let feitas=ler();
@@ -318,4 +313,5 @@ atualizarProgresso();mostrar();
 """
 
 if __name__ == "__main__":
-    montar()
+    for c in CURSOS:
+        montar(c)
