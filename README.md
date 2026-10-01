@@ -1,16 +1,25 @@
-# HN · Máquina de Edição com IA
+# HN · Edição com IA
 
 Central de edição de vídeos com IA da **HN Gestão Comercial e Marketing**: você dá o
 comando em português, e o Codex ou o Claude Code edita.
 
+## Abrir o curso no navegador
+- **Windows:** dois cliques em `abrir-curso.bat`
+- **Mac:** dois cliques em `abrir-curso.command` (na primeira vez: botão direito → Abrir)
+- **Linux:** `sh abrir-curso.command`
+
+O curso abre em **http://localhost:8000**. Sem Python instalado, o atalho abre direto
+o arquivo `site/index.html`, que também funciona sozinho, sem internet.
+
 ## Comece por aqui
-1. Leia o curso: [`curso/MANUAL-EDICAO-COM-IA-HN.md`](curso/MANUAL-EDICAO-COM-IA-HN.md)
+1. Faça o curso no navegador (ou leia [`curso/MANUAL-EDICAO-COM-IA-HN.md`](curso/MANUAL-EDICAO-COM-IA-HN.md)).
 2. Prepare o computador (Aula 01).
 3. Crie a pasta do primeiro vídeo com o [modelo de pastas](modelos/estrutura-de-pastas.md).
 
 ## O que tem aqui
 | Pasta | Conteúdo |
 |---|---|
+| `site/` | O curso em página única para o navegador (gerado por `ferramentas/gerar_site.py`) |
 | `curso/` | Manual completo: 10 aulas + 2 bônus |
 | `modelos/` | Guia de comandos, briefing, pasta modelo e ficha de revisão |
 | `.claude/skills/` | 5 skills de edição (estilo, ritmo, legendas, movimento e composição) |

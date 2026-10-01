@@ -1,4 +1,4 @@
-# Máquina de Edição com IA — Manual do Curso (versão HN)
+# Edição com IA — Curso HN
 
 > Curso prático para a **HN Gestão Comercial e Marketing** editar anúncios e conteúdos
 > dando comandos em português para uma IA. Da instalação às edições avançadas,

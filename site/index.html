@@ -1,0 +1,1781 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edição com IA — Curso HN</title>
+<style>
+:root{--bg:#f7f6fb;--painel:#fff;--texto:#1c1530;--suave:#5d5675;--linha:#e4e0ef;--marca:#7c3aed;--marca-suave:#efe7fd;--codigo-bg:#16101f;--codigo-tx:#ece6f8;--ok:#16a34a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--texto);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+.topo{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--painel);border-bottom:1px solid var(--linha)}
+.topo strong{font-size:15px;letter-spacing:.01em}
+.topo .marca{width:28px;height:28px;border-radius:8px;background:var(--marca);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.topo .espaco{flex:1}
+.progresso{font-size:13px;color:var(--suave);white-space:nowrap}
+.barra{height:4px;width:120px;background:var(--linha);border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--marca);transition:width .3s}
+button{font:inherit;cursor:pointer}
+.botao-menu{display:none;background:none;border:1px solid var(--linha);color:var(--texto);border-radius:8px;padding:4px 10px}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1240px;margin:0 auto}
+nav{position:sticky;top:53px;height:calc(100vh - 53px);overflow:auto;padding:16px 12px 40px;border-right:1px solid var(--linha)}
+nav .grupo{margin:18px 10px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--suave)}
+nav ul{list-style:none;margin:0;padding:0}
+nav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:var(--texto);text-decoration:none;font-size:14.5px}
+nav a:hover{background:var(--marca-suave)}
+nav a.ativo{background:var(--marca-suave);color:var(--marca);font-weight:600}
+nav .ok{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid var(--linha)}
+nav a.feito .ok{background:var(--ok);border-color:var(--ok)}
+main{padding:32px 40px 80px;min-width:0}
+.pagina{max-width:760px}
+h1{font-size:32px;line-height:1.2;margin:0 0 20px;letter-spacing:-.01em}
+h2{font-size:22px;margin:36px 0 12px;padding-top:8px}
+h3{font-size:18px;margin:26px 0 8px}
+a{color:var(--marca)}
+blockquote{margin:18px 0;padding:12px 16px;background:var(--marca-suave);border-left:4px solid var(--marca);border-radius:0 10px 10px 0}
+blockquote p{margin:.3em 0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:var(--marca-suave)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre code{background:none;padding:0;color:inherit;white-space:pre}
+.copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
+.copiar:hover{background:#ffffff33}
+details{margin:12px 0;border:1px solid var(--linha);border-radius:10px;padding:8px 14px;background:var(--painel)}
+summary{cursor:pointer;font-weight:600}
+.arquivo{color:var(--suave);font-size:14px;margin-top:-10px}
+.rodape{max-width:760px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--linha)}
+.rodape a{text-decoration:none;padding:8px 14px;border:1px solid var(--linha);border-radius:10px;background:var(--painel);color:var(--texto);font-size:14px}
+.rodape a:hover{border-color:var(--marca)}
+.concluir{display:flex;align-items:center;gap:8px;font-weight:600;padding:8px 14px;border-radius:10px;border:1px solid var(--marca);background:var(--painel);color:var(--marca)}
+.concluir.feito{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (max-width:860px){
+.layout{grid-template-columns:1fr}
+.botao-menu{display:block}
+nav{position:fixed;top:53px;left:0;width:min(300px,85vw);background:var(--painel);z-index:15;transform:translateX(-105%);transition:transform .2s;box-shadow:0 10px 30px #0004}
+body.menu-aberto nav{transform:none}
+main{padding:24px 16px 64px}
+h1{font-size:26px}
+.barra{display:none}
+}
+</style>
+</head>
+<body>
+<header class="topo">
+<button class="botao-menu" aria-label="Abrir menu" onclick="document.body.classList.toggle('menu-aberto')">☰</button>
+<span class="marca">HN</span><strong>Edição com IA — Curso HN</strong>
+<span class="espaco"></span>
+<span class="progresso" id="progresso"></span><span class="barra"><i id="barra"></i></span>
+</header>
+<div class="layout">
+<nav aria-label="Conteúdo do curso"><p class="grupo">Começo</p><ul>
+<li><a href="#inicio" data-id="inicio">Visão geral</a></li>
+</ul>
+<p class="grupo">Aulas</p><ul>
+<li><a href="#aula-01" data-id="aula-01"><span class="ok" aria-hidden="true"></span>01 · Ambiente pronto</a></li>
+<li><a href="#aula-02" data-id="aula-02"><span class="ok" aria-hidden="true"></span>02 · Seu primeiro projeto</a></li>
+<li><a href="#aula-03" data-id="aula-03"><span class="ok" aria-hidden="true"></span>03 · Custos sob controle</a></li>
+<li><a href="#aula-04" data-id="aula-04"><span class="ok" aria-hidden="true"></span>04 · O pedido certo</a></li>
+<li><a href="#aula-05" data-id="aula-05"><span class="ok" aria-hidden="true"></span>05 · Primeira edição</a></li>
+<li><a href="#aula-06" data-id="aula-06"><span class="ok" aria-hidden="true"></span>06 · Imagens com função</a></li>
+<li><a href="#aula-07" data-id="aula-07"><span class="ok" aria-hidden="true"></span>07 · Motion explicativo</a></li>
+<li><a href="#aula-08" data-id="aula-08"><span class="ok" aria-hidden="true"></span>08 · Variações para ads</a></li>
+<li><a href="#aula-09" data-id="aula-09"><span class="ok" aria-hidden="true"></span>09 · Revisar sem refazer</a></li>
+<li><a href="#aula-10" data-id="aula-10"><span class="ok" aria-hidden="true"></span>10 · Rotina de produção</a></li>
+</ul>
+<p class="grupo">Bônus</p><ul>
+<li><a href="#bonus-01" data-id="bonus-01"><span class="ok" aria-hidden="true"></span>B1 · Perspectiva e composição 3D</a></li>
+<li><a href="#bonus-02" data-id="bonus-02"><span class="ok" aria-hidden="true"></span>B2 · Recorte, moldura e lettering</a></li>
+</ul>
+<p class="grupo">Materiais</p><ul>
+<li><a href="#comandos" data-id="comandos">Guia de comandos</a></li>
+<li><a href="#briefing" data-id="briefing">Modelo de briefing</a></li>
+<li><a href="#pastas" data-id="pastas">Pasta modelo</a></li>
+<li><a href="#revisao" data-id="revisao">Ficha de revisão</a></li>
+<li><a href="#materiais" data-id="materiais">Materiais e glossário</a></li>
+</ul>
+<p class="grupo">Skills de edição</p><ul>
+<li><a href="#skill-estilo" data-id="skill-estilo">Estilo</a></li>
+<li><a href="#skill-ritmo" data-id="skill-ritmo">Ritmo</a></li>
+<li><a href="#skill-legendas" data-id="skill-legendas">Legendas</a></li>
+<li><a href="#skill-movimento" data-id="skill-movimento">Movimento</a></li>
+<li><a href="#skill-composicao" data-id="skill-composicao">Composição</a></li>
+</ul>
+<p class="grupo">Ferramentas</p><ul>
+<li><a href="#ferramentas" data-id="ferramentas">Ferramentas</a></li>
+</ul></nav>
+<main>
+<section class="pagina" id="pg-inicio" data-id="inicio" hidden><h1>Edição com IA — Curso HN</h1>
+<blockquote>
+<p>Curso prático para a <strong>HN Gestão Comercial e Marketing</strong> editar anúncios e conteúdos
+dando comandos em português para uma IA. Da instalação às edições avançadas,
+mesmo para quem nunca editou.</p>
+</blockquote>
+<h1>Como usar este manual</h1>
+<p>Este manual reconstrói, em formato de curso, o método apresentado publicamente em
+<code>edicaomia.com.br</code> ("Máquina de Edição com IA", de Tiago Lemos), <strong>adaptado para a
+rotina da HN</strong>. Ele foi escrito do zero a partir da página de vendas pública, da
+transcrição do vídeo de apresentação e da análise dos vídeos de exemplo — <strong>não é
+cópia das aulas pagas</strong>, que ficam numa área restrita. Onde a página não detalhava
+o "como", o conteúdo foi completado com prática testada de verdade (os scripts em
+<code>ferramentas/</code> foram executados e validados).</p>
+<p>Siga as aulas em ordem. Cada uma tem: <strong>objetivo</strong>, <strong>conceito</strong>, <strong>passo a passo</strong>,
+<strong>comandos prontos</strong> e <strong>exercício aplicado à HN</strong>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Aula</th>
+<th>Você sai sabendo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>Ambiente pronto</td>
+<td>Instalar Codex ou Claude Code e as ferramentas de vídeo</td>
+</tr>
+<tr>
+<td>02</td>
+<td>Seu primeiro projeto</td>
+<td>Organizar a pasta para a IA acertar</td>
+</tr>
+<tr>
+<td>03</td>
+<td>Custos sob controle</td>
+<td>Gastar pouco e não refazer à toa</td>
+</tr>
+<tr>
+<td>04</td>
+<td>O pedido certo</td>
+<td>Escrever comandos que viram edição</td>
+</tr>
+<tr>
+<td>05</td>
+<td>Primeira edição</td>
+<td>Cortar pausas e legendar automaticamente</td>
+</tr>
+<tr>
+<td>06</td>
+<td>Imagens com função</td>
+<td>Inserir imagens no momento certo da fala</td>
+</tr>
+<tr>
+<td>07</td>
+<td>Motion explicativo</td>
+<td>Fazer a fala virar interface animada</td>
+</tr>
+<tr>
+<td>08</td>
+<td>Variações para ads</td>
+<td>Gerar várias versões de um anúncio</td>
+</tr>
+<tr>
+<td>09</td>
+<td>Revisar sem refazer</td>
+<td>Corrigir só o trecho errado</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Rotina de produção</td>
+<td>Transformar tudo numa linha de produção semanal</td>
+</tr>
+<tr>
+<td>B1</td>
+<td>Perspectiva e composição 3D</td>
+<td>Camadas com profundidade</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>Recorte, moldura e lettering</td>
+<td>Texto atrás de você, sem tela verde</td>
+</tr>
+</tbody>
+</table>
+<h1>A ideia central: você dirige, a IA edita</h1>
+<p>O método inteiro cabe numa frase: <strong>você deixa de montar efeito por efeito e passa
+a dizer, em português, o que quer ver na tela.</strong> A IA constrói a edição.</p>
+<p>Isso funciona porque Codex (OpenAI) e Claude Code (Anthropic) são <strong>agentes que
+escrevem e executam código no seu computador</strong>. Quando você pede "corta as pausas e
+coloca legenda", a IA não "clica" num editor — ela escreve e roda comandos de
+ferramentas de vídeo (como o <code>ffmpeg</code>) que fazem o corte, a legenda e a animação.
+Você nunca precisa abrir um editor de vídeo.</p>
+<p>Seu papel muda de <strong>editor</strong> para <strong>diretor</strong>. E a regra de ouro do curso é:</p>
+<blockquote>
+<p><strong>Quanto melhor a direção, melhor a edição. E direção se aprende.</strong></p>
+</blockquote>
+<h2>O método em 4 etapas</h2>
+<p>Toda edição, da mais simples à mais avançada, segue o mesmo ciclo:</p>
+<ol>
+<li><strong>Prepare</strong> — organize o material (gravação, roteiro, referências, marca) numa
+   pasta que a IA entende.</li>
+<li><strong>Peça</strong> — dê um comando claro: o que, onde, com que estilo.</li>
+<li><strong>Revise</strong> — confira a <strong>amostra</strong> curta antes do vídeo inteiro e corrija só o
+   que estiver errado.</li>
+<li><strong>Reutilize</strong> — salve o que foi aprovado (estilo, comandos, templates) para o
+   próximo vídeo sair mais rápido e igual.</li>
+</ol>
+<p>Guarde esse ciclo. As aulas 01–04 ensinam a <strong>Preparar</strong> e <strong>Pedir</strong>; a 09 ensina a
+<strong>Revisar</strong>; a 10 fecha com <strong>Reutilizar</strong>.</p>
+<h2>Por que isso importa para a HN</h2>
+<p>A HN vive de <strong>anúncios, conteúdo e explicação de oferta</strong> — exatamente os três
+casos em que a edição trava:</p>
+<table>
+<thead>
+<tr>
+<th>Situação na HN</th>
+<th>O problema</th>
+<th>A virada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ads</strong> de clientes</td>
+<td>O criativo cansa e a próxima versão não sai</td>
+<td>Gerar variações em minutos (Aula 08)</td>
+</tr>
+<tr>
+<td><strong>Conteúdo</strong> da própria HN</td>
+<td>Grava, mas a edição fica pra depois e nada vai ao ar</td>
+<td>Rotina semanal de produção (Aula 10)</td>
+</tr>
+<tr>
+<td><strong>Oferta</strong> (vender o serviço de gestão comercial)</td>
+<td>Paredão de texto, o cliente rola antes de entender</td>
+<td>Motion explicativo (Aula 07)</td>
+</tr>
+</tbody>
+</table>
+<p>Nos três casos a virada é a mesma: <strong>você direciona, a IA edita.</strong></p></section>
+<section class="pagina" id="pg-aula-01" data-id="aula-01" hidden><h1>Aula 01 — Ambiente pronto</h1>
+<p><strong>Objetivo:</strong> deixar o computador pronto para editar com IA.</p>
+<h2>Conceito</h2>
+<p>Você precisa de duas coisas:</p>
+<ol>
+<li><strong>Um agente de IA</strong> que escreve e executa código — escolha <strong>um</strong>:
+   - <strong>Codex</strong> (OpenAI) — vem com assinaturas do ChatGPT.
+   - <strong>Claude Code</strong> (Anthropic) — vem com assinaturas do Claude.</li>
+</ol>
+<p>Os dois funcionam bem para o método. Os aplicativos, planos e limites são
+   diferentes, então escolha o que já combina com o que a HN assina.</p>
+<ol start="2">
+<li><strong>As ferramentas de vídeo</strong> que a IA vai comandar:
+   - <strong>ffmpeg</strong> — corta, junta, converte, aplica legenda. É o "motor" de tudo.
+   - <strong>Python 3</strong> — roda os scripts de corte e legenda.
+   - <strong>faster-whisper</strong> — transcreve a fala (gera o texto e o tempo de cada palavra
+     para as legendas).
+   - <strong>Node.js</strong> — necessário para as animações avançadas (Aulas 07, B1, B2).</li>
+</ol>
+<blockquote>
+<p><strong>Você vai precisar de um computador.</strong> As práticas usam arquivos e ferramentas
+instaladas na máquina. O tempo de processamento varia conforme o computador, a
+duração do vídeo e a complexidade dos efeitos — por isso sempre comece com testes
+curtos.</p>
+</blockquote>
+<h2>Passo a passo</h2>
+<p><strong>1. Instale o agente de IA (escolha um).</strong> Siga o instalador oficial do produto que
+você assina. Depois abra o terminal dentro da pasta do projeto e inicie o agente.</p>
+<p><strong>2. Deixe a própria IA instalar as ferramentas de vídeo.</strong> Esse é o primeiro uso do
+método: em vez de você instalar tudo na mão, <strong>peça</strong>. Abra o agente e cole:</p>
+<pre><code>Prepare este computador para editar vídeos. Verifique se ffmpeg, Python 3,
+Node.js e a biblioteca faster-whisper estão instalados. Instale o que faltar,
+usando o gerenciador de pacotes adequado ao meu sistema. No fim, rode
+&quot;ffmpeg -version&quot; e &quot;python3 --version&quot; e me mostre o resultado.
+</code></pre>
+<p><strong>3. Confirme.</strong> O ambiente está pronto quando a IA mostrar as versões do ffmpeg e
+do Python sem erro.</p>
+<h2>Exercício HN</h2>
+<p>Peça à IA para listar a versão de cada ferramenta e salvar num arquivo
+<code>ambiente-ok.txt</code> na pasta da HN. Esse arquivo vira seu "checklist de máquina pronta".</p></section>
+<section class="pagina" id="pg-aula-02" data-id="aula-02" hidden><h1>Aula 02 — Seu primeiro projeto</h1>
+<p><strong>Objetivo:</strong> organizar os arquivos de um jeito que faça a IA acertar.</p>
+<h2>Conceito</h2>
+<p>A IA só edita bem o que ela consegue <strong>encontrar e entender</strong>. Uma pasta bagunçada
+("gravacao_01.mov … gravacao_08.mov, AGUARDANDO EDIÇÃO") gera pedidos vagos e
+resultados errados. Uma pasta organizada é metade da direção.</p>
+<h2>Passo a passo</h2>
+<p>Use <strong>uma pasta por vídeo</strong>, sempre com a mesma estrutura. O modelo completo está em
+<a href="#pastas"><code>modelos/estrutura-de-pastas.md</code></a>. Em resumo:</p>
+<pre><code>2026-10-hn-ads-gestao-comercial/
+├── 00-briefing.md        ← o que é o vídeo (modelo em modelos/briefing.md)
+├── 01-bruto/             ← gravações originais (nunca edite aqui)
+├── 02-roteiro/           ← roteiro e transcrição
+├── 03-assets/            ← logo, imagens, fontes, cores da marca
+├── 04-referencias/       ← vídeos de outros criadores que servem de estilo
+├── 05-amostras/          ← trechos curtos para revisar antes do vídeo inteiro
+└── 06-final/             ← versões aprovadas, prontas para postar
+</code></pre>
+<p>Regras de ouro:
+- <strong>Nunca edite o bruto.</strong> A IA sempre gera arquivos novos a partir dele.
+- <strong>Nomes que dizem o que são:</strong> <code>take-01.mp4</code>, não <code>IMG_8823.MOV</code>.
+- <strong>Use só assets que a HN tem direito de usar</strong> (gravações, imagens, músicas).</p>
+<h2>Comando pronto</h2>
+<pre><code>Crie a estrutura de pasta de um novo vídeo da HN chamado
+&quot;2026-10-hn-ads-gestao-comercial&quot;, seguindo modelos/estrutura-de-pastas.md.
+Copie modelos/briefing.md para dentro dela como 00-briefing.md.
+</code></pre>
+<h2>Exercício HN</h2>
+<p>Crie a pasta do primeiro vídeo real da HN e preencha o <code>00-briefing.md</code>.</p></section>
+<section class="pagina" id="pg-aula-03" data-id="aula-03" hidden><h1>Aula 03 — Custos sob controle</h1>
+<p><strong>Objetivo:</strong> usar a IA sem estourar créditos nem refazer trabalho.</p>
+<h2>Conceito</h2>
+<p>Cada pedido consome <strong>tokens</strong> (o "combustível" da IA) e tempo de processamento. O
+desperdício não vem de pedir demais — vem de <strong>refazer</strong>: pedir o vídeo inteiro,
+descobrir um erro no segundo 40 e mandar fazer tudo de novo.</p>
+<blockquote>
+<p>O treinamento não inclui as ferramentas. Assinaturas, créditos e serviços externos
+são contratados separadamente. Avalie esses gastos antes de escalar.</p>
+</blockquote>
+<h2>As 4 regras de economia</h2>
+<ol>
+<li><strong>Teste numa amostra.</strong> Antes do vídeo inteiro, peça 5–10 segundos. Aprovou o
+   estilo? Aí sim aplique no resto.</li>
+<li><strong>Corrija o trecho certo.</strong> Se só a legenda do segundo 12 está errada, peça para
+   corrigir <strong>só aquilo</strong> (Aula 09), não para refazer o vídeo.</li>
+<li><strong>Reaproveite o aprovado.</strong> Estilo aprovado vira template/skill (Aula 10). O
+   próximo vídeo não começa do zero — e nem a IA.</li>
+<li><strong>Faça o trabalho pesado com ferramenta, não com IA.</strong> Cortar silêncio e
+   transcrever é trabalho do <code>ffmpeg</code> e do <code>faster-whisper</code>, que rodam no seu
+   computador de graça. A IA só precisa escrever e disparar o comando.</li>
+</ol>
+<h2>Exercício HN</h2>
+<p>Antes de cada vídeo, anote no briefing: <strong>quanto tempo</strong> e <strong>quantas tentativas</strong>
+você aceita gastar. Se passar disso, o problema é a direção — volte à Aula 04.</p></section>
+<section class="pagina" id="pg-aula-04" data-id="aula-04" hidden><h1>Aula 04 — O pedido certo</h1>
+<p><strong>Objetivo:</strong> escrever comandos que a IA transforma em edição de primeira.</p>
+<h2>Conceito</h2>
+<p>A diferença entre um vídeo genérico e um vídeo bom está no pedido.</p>
+<table>
+<thead>
+<tr>
+<th>Pedido vago</th>
+<th>Pedido dirigido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Edita esse vídeo e deixa bonito."</td>
+<td>"Corte as pausas de <code>01-bruto/take-01.mp4</code>, adicione legendas com a palavra falada em destaque roxo e anime o título 'Gestão que vende' nos 3 primeiros segundos."</td>
+</tr>
+</tbody>
+</table>
+<p>Sem direção, <strong>a IA adivinha o resto</strong>. Com direção, ela acerta.</p>
+<h2>A fórmula do pedido certo</h2>
+<p>Todo bom comando responde 5 perguntas:</p>
+<ol>
+<li><strong>O quê?</strong> Qual arquivo, qual trecho (<code>take-01.mp4</code>, de 0:05 a 0:20).</li>
+<li><strong>Faça o quê?</strong> A ação (cortar pausas, legendar, inserir imagem, animar).</li>
+<li><strong>Como fica?</strong> O estilo (cor, fonte, ritmo) — ou aponte para uma skill.</li>
+<li><strong>Onde vai?</strong> Formato e destino (vertical 9:16 para Reels, 1:1 para feed).</li>
+<li><strong>Entregue o quê?</strong> Primeiro uma <strong>amostra</strong>; depois o vídeo inteiro.</li>
+</ol>
+<h2>Usar um vídeo de referência</h2>
+<p>"Gostei da edição de um vídeo que vi, consigo fazer nesse estilo?" — sim. Coloque o
+vídeo em <code>04-referencias/</code> e peça para a IA <strong>analisar</strong> antes de editar:</p>
+<pre><code>Analise o vídeo 04-referencias/referencia.mp4. Descreva o ritmo dos cortes,
+o estilo das legendas, as transições e as composições. Depois adapte essa
+direção ao meu roteiro e à identidade da HN, sem copiar a marca de ninguém.
+Me mostre uma amostra de 8 segundos antes de aplicar no vídeo inteiro.
+</code></pre>
+<h2>Exercício HN</h2>
+<p>Reescreva 3 pedidos vagos que você faria hoje usando a fórmula das 5 perguntas.</p></section>
+<section class="pagina" id="pg-aula-05" data-id="aula-05" hidden><h1>Aula 05 — Primeira edição</h1>
+<p><strong>Objetivo:</strong> sair do bruto para o editado — pausas cortadas e legenda dinâmica.</p>
+<h2>Conceito</h2>
+<p>A primeira edição é a que mais economiza tempo e a que todo vídeo da HN vai usar:
+<strong>retirar o silêncio, juntar as falas sem buracos e inserir legendas no tempo de
+cada fala.</strong> A IA faz isso em 3 passos:</p>
+<ol>
+<li><strong>Retira o silêncio</strong> — encontra as pausas e corta.</li>
+<li><strong>Aproxima os trechos</strong> — junta as falas, sem buracos.</li>
+<li><strong>Insere as legendas</strong> — no tempo exato de cada palavra.</li>
+</ol>
+<p>Este repositório já traz as duas ferramentas prontas e <strong>testadas</strong>:</p>
+<ul>
+<li><a href="#ferramentas"><code>ferramentas/cortar_silencios.py</code></a></li>
+<li><a href="#ferramentas"><code>ferramentas/legendar.py</code></a></li>
+</ul>
+<h2>Passo a passo</h2>
+<p><strong>Cortar as pausas:</strong></p>
+<pre><code>python3 ferramentas/cortar_silencios.py 01-bruto/take-01.mp4 05-amostras/sem-pausas.mp4
+</code></pre>
+<p>Ajustes, se precisar:
+- <code>--limiar -32</code> — abaixe (ex.: <code>-40</code>) se estiver cortando falas baixas.
+- <code>--pausa 0.45</code> — duração mínima de uma pausa para ser cortada.
+- <code>--respiro 0.12</code> — folga mantida antes/depois de cada fala (evita corte seco).</p>
+<p><strong>Legendar (com a palavra falada em destaque):</strong></p>
+<pre><code>python3 ferramentas/legendar.py 05-amostras/sem-pausas.mp4 --queimar \
+  --destaque &quot;HN,vendas,resultado&quot; --cor &quot;#7C3AED&quot; --maiusculas
+</code></pre>
+<p>Gera <code>.srt</code> (legenda simples), <code>.ass</code> (legenda estilizada), a transcrição em texto e,
+com <code>--queimar</code>, o vídeo já legendado.</p>
+<h2>Ou simplesmente peça</h2>
+<p>Você não precisa decorar os comandos. Diga à IA:</p>
+<pre><code>Corte as pausas e coloque legenda em 01-bruto/take-01.mp4. Use as ferramentas
+da pasta ferramentas/. Legenda em maiúsculas, palavra falada em destaque na
+cor #7C3AED, e sempre destaque as palavras &quot;HN&quot; e &quot;vendas&quot;.
+Me mostre os primeiros 10 segundos antes de processar o vídeo inteiro.
+</code></pre>
+<blockquote>
+<p><strong>Resultado comprovado:</strong> num teste, uma pausa de 1,5 s caiu para ~0,25 s de
+respiro, e a legenda saiu sincronizada com a palavra falada destacada em roxo.</p>
+</blockquote>
+<h2>Exercício HN</h2>
+<p>Grave 30 segundos explicando o que a HN faz. Corte as pausas e legende.</p></section>
+<section class="pagina" id="pg-aula-06" data-id="aula-06" hidden><h1>Aula 06 — Imagens com função</h1>
+<p><strong>Objetivo:</strong> inserir imagens que <strong>reforçam</strong> a fala, no momento certo.</p>
+<h2>Conceito</h2>
+<p>Imagem sem função é enfeite. Imagem com função <strong>prova</strong> o que você está dizendo no
+exato momento em que você diz. Se você fala "nosso cliente dobrou as vendas", o
+gráfico de crescimento aparece <strong>naquela palavra</strong> — não 3 segundos depois.</p>
+<p>A chave é a <strong>transcrição com tempo de cada palavra</strong> (gerada na Aula 05): ela diz à
+IA exatamente quando cada coisa foi dita.</p>
+<h2>Passo a passo</h2>
+<ol>
+<li>Coloque as imagens em <code>03-assets/</code> com nomes que dizem o que são
+   (<code>grafico-crescimento.png</code>, <code>logo-cliente.png</code>).</li>
+<li>Peça a inserção amarrada à fala:</li>
+</ol>
+<pre><code>Use a transcrição de 05-amostras/sem-pausas. Quando eu disser &quot;dobrou as
+vendas&quot;, mostre 03-assets/grafico-crescimento.png entrando com zoom suave,
+por 2 segundos, ocupando a metade de cima do vídeo vertical. Me mostre uma
+amostra só desse trecho.
+</code></pre>
+<h2>Boas práticas</h2>
+<ul>
+<li><strong>Uma ideia por imagem.</strong> Imagem que precisa de explicação atrapalha.</li>
+<li><strong>Entre no tempo da fala</strong>, saia logo depois.</li>
+<li><strong>Não cubra o rosto</strong> durante a parte emocional da fala.</li>
+</ul>
+<h2>Exercício HN</h2>
+<p>Liste 5 frases que você sempre fala ao vender o serviço da HN e, para cada uma, a
+imagem que a prova.</p></section>
+<section class="pagina" id="pg-aula-07" data-id="aula-07" hidden><h1>Aula 07 — Motion explicativo</h1>
+<p><strong>Objetivo:</strong> fazer a <strong>fala virar interface</strong> — cards, listas e ícones animados que
+explicam a oferta enquanto você fala.</p>
+<h2>Conceito</h2>
+<p>É o estilo mais poderoso para <strong>explicar a oferta da HN</strong>. Em vez de um paredão de
+texto, a explicação aparece animada, item por item, no ritmo da sua fala. Exemplo
+clássico: "Três pontos para sua rotina — <strong>Planejamento</strong> (organizar a semana),
+<strong>Escolhas possíveis</strong> (respeitar preferências), <strong>Acompanhamento</strong> (ajustar o
+caminho)" — cada card acende quando você fala dele.</p>
+<p>Tecnicamente, essas animações são <strong>desenhadas em código</strong> (HTML/CSS ou uma
+biblioteca de vídeo em código) e depois renderizadas por cima da gravação. Você não
+escreve esse código — a IA escreve. Você só dirige.</p>
+<h2>Passo a passo — sempre por amostra</h2>
+<p><strong>Etapa 1 — descreva a composição:</strong></p>
+<pre><code>Crie um motion explicativo para o trecho em que explico os 3 pilares da HN:
+&quot;Diagnóstico&quot;, &quot;Estratégia&quot; e &quot;Execução&quot;. Faça uma lista de 3 cards no topo
+do vídeo vertical, estilo roxo escuro da HN. Cada card acende no momento em que
+eu falo o nome dele (use a transcrição). Meu rosto continua visível embaixo.
+</code></pre>
+<p><strong>Etapa 2 — peça a primeira amostra:</strong> a IA gera só esse trecho, com o ritmo de cada
+elemento, <strong>antes</strong> do vídeo inteiro. Revise (Aula 09), ajuste e só então aplique.</p>
+<h2>Exercício HN</h2>
+<p>Transforme a oferta principal da HN em um motion explicativo de 3 itens.</p></section>
+<section class="pagina" id="pg-aula-08" data-id="aula-08" hidden><h1>Aula 08 — Variações para ads</h1>
+<p><strong>Objetivo:</strong> gerar várias versões de um anúncio para testar, sem regravar.</p>
+<h2>Conceito</h2>
+<p>Anúncio cansa. A solução não é gravar mais — é <strong>variar mais</strong>. Com a base aprovada,
+a IA cria <strong>Versão B, C, D</strong> trocando só o que importa testar:</p>
+<ul>
+<li><strong>Abertura (gancho)</strong> — os 3 primeiros segundos que param o scroll.</li>
+<li><strong>Imagens</strong> de prova.</li>
+<li><strong>Formato</strong> — vertical (9:16), quadrado (1:1), horizontal (16:9).</li>
+<li><strong>Chamada final</strong> (CTA).</li>
+</ul>
+<h2>Passo a passo</h2>
+<pre><code>Use 06-final/anuncio-base.mp4 como base aprovada. Crie 3 variações para teste:
+- Versão B: abre com o título &quot;Sua equipe vende sem processo?&quot;
+- Versão C: abre com o gráfico de resultado antes da fala
+- Versão D: mesma da B, mas em formato quadrado 1:1
+Mantenha a legenda e o estilo iguais. Salve em 06-final/ com o nome da versão.
+</code></pre>
+<h2>Exercício HN</h2>
+<p>Pegue o anúncio de um cliente e gere 3 ganchos diferentes para teste A/B.</p></section>
+<section class="pagina" id="pg-aula-09" data-id="aula-09" hidden><h1>Aula 09 — Revisar sem refazer</h1>
+<p><strong>Objetivo:</strong> corrigir só o que está errado, sem refazer o vídeo.</p>
+<h2>Conceito</h2>
+<p>A revisão é onde se ganha ou se perde tempo (e dinheiro). O erro comum é pedir "faz
+de novo". O certo é <strong>apontar o trecho e a correção</strong>. Use a ficha em
+<a href="#revisao"><code>modelos/ficha-de-revisao.md</code></a>.</p>
+<h2>Como pedir uma correção</h2>
+<p>Sempre diga <strong>onde</strong> (tempo), <strong>o quê</strong> está errado e <strong>como</strong> deve ficar:</p>
+<pre><code>No segundo 0:12 a legenda escreveu &quot;vendaz&quot;, o certo é &quot;vendas&quot;.
+Entre 0:20 e 0:23 a imagem entrou atrasada: faça ela entrar quando eu digo
+&quot;resultado&quot;. Não mexa em mais nada do vídeo.
+</code></pre>
+<h2>A regra "não mexa em mais nada"</h2>
+<p>Termine toda correção com <strong>"não mexa em mais nada"</strong>. Isso impede a IA de "melhorar"
+partes que já estavam aprovadas.</p>
+<h2>Exercício HN</h2>
+<p>Revise o vídeo da Aula 05 usando a ficha de revisão e corrija só os pontos marcados.</p></section>
+<section class="pagina" id="pg-aula-10" data-id="aula-10" hidden><h1>Aula 10 — Rotina de produção</h1>
+<p><strong>Objetivo:</strong> transformar o método numa linha de produção semanal da HN.</p>
+<h2>Conceito</h2>
+<p>Um vídeo é projeto. Vários vídeos por semana é <strong>rotina</strong>. A rotina funciona porque
+você <strong>reutiliza</strong> tudo o que aprovou: estrutura de pasta, briefing, comandos e
+estilo (skills). O próximo vídeo não começa do zero.</p>
+<h2>A semana de produção da HN</h2>
+<table>
+<thead>
+<tr>
+<th>Dia</th>
+<th>Etapa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seg</td>
+<td><strong>Prepare</strong></td>
+<td>Roteiros da semana + briefings preenchidos</td>
+</tr>
+<tr>
+<td>Ter</td>
+<td><strong>Grave</strong></td>
+<td>Grave todos os takes de uma vez</td>
+</tr>
+<tr>
+<td>Qua</td>
+<td><strong>Peça</strong></td>
+<td>Primeira edição (Aula 05) de tudo</td>
+</tr>
+<tr>
+<td>Qui</td>
+<td><strong>Revise</strong></td>
+<td>Amostras + correções pontuais (Aula 09)</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td><strong>Reutilize</strong></td>
+<td>Variações de ads (Aula 08) + salvar o que funcionou</td>
+</tr>
+</tbody>
+</table>
+<h2>Reutilizar = salvar o aprovado</h2>
+<p>Quando um estilo for aprovado, peça:</p>
+<pre><code>Salve o estilo deste vídeo (cores, fonte, legenda, ritmo e animações) como
+uma skill reutilizável na pasta .claude/skills/, para eu aplicar nos próximos
+vídeos da HN com um único comando.
+</code></pre>
+<h2>Exercício HN</h2>
+<p>Monte o calendário de conteúdo do próximo mês da HN usando a semana acima.</p></section>
+<section class="pagina" id="pg-bonus-01" data-id="bonus-01" hidden><h1>Bônus 01 — Perspectiva e composição 3D</h1>
+<p><strong>Objetivo:</strong> dar profundidade de três dimensões às camadas do vídeo.</p>
+<h2>Conceito</h2>
+<p>Elementos (cards, telas, imagens) são posicionados em <strong>camadas com profundidade</strong>,
+girados em perspectiva, como se estivessem no espaço. Exemplos do estilo: uma sala
+"montada camada por camada", "5 camadas em 3D", um tutorial em que "o pedido vira
+vídeo" em perspectiva. Novamente: a IA desenha isso em código, você dirige.</p>
+<h2>Comando base</h2>
+<pre><code>Monte uma composição 3D para mostrar o processo da HN em 3 camadas:
+&quot;Diagnóstico&quot;, &quot;Estratégia&quot; e &quot;Execução&quot;. Cada camada é um card que entra em
+perspectiva, empilhado com profundidade, girando levemente. Mostre uma amostra
+de 6 segundos antes de aplicar.
+</code></pre>
+<blockquote>
+<p>Dica: 3D é o efeito mais pesado de processar. <strong>Sempre</strong> valide numa amostra curta
+(Aula 03) antes de renderizar o vídeo inteiro.</p>
+</blockquote></section>
+<section class="pagina" id="pg-bonus-02" data-id="bonus-02" hidden><h1>Bônus 02 — Recorte, moldura e lettering</h1>
+<p><strong>Objetivo:</strong> colocar texto <strong>atrás</strong> de você e emoldurar a cena, <strong>sem tela verde</strong>.</p>
+<h2>Conceito</h2>
+<ol>
+<li><strong>Recorte de fundo</strong> — a IA separa você do fundo (sem tela verde), o que permite
+   trocar o cenário (cidade à noite, gráfico neon, cor sólida) com uma gravação só.</li>
+<li><strong>Lettering</strong> — com o recorte, um texto grande ("SEM TELA VERDE") passa <strong>atrás</strong>
+   da sua cabeça e na frente do fundo. É o efeito "a palavra vira a cena".</li>
+<li><strong>Moldura</strong> — uma borda com brilho que abre espaço para uma explicação do lado que
+   você indicar.</li>
+</ol>
+<h2>Comando base</h2>
+<pre><code>Recorte meu fundo em 01-bruto/take-01.mp4 sem tela verde. Coloque o texto
+&quot;GESTÃO QUE VENDE&quot; em letras grandes atrás de mim e na frente do fundo, nos
+4 primeiros segundos. Depois adicione uma moldura roxa com brilho abrindo
+espaço à direita para uma explicação. Amostra de 6 segundos primeiro.
+</code></pre></section>
+<section class="pagina" id="pg-comandos" data-id="comandos" hidden><h1>Guia de comandos — HN</h1>
+<blockquote>
+<p>Copie, troque o que está entre <code>&lt; &gt;</code> e cole no Codex ou no Claude Code.
+Organizado por aula e etapa. Sempre peça <strong>amostra antes do vídeo inteiro</strong>.</p>
+</blockquote>
+<hr />
+<h2>Aula 01 — Ambiente pronto</h2>
+<p><strong>Instalar tudo</strong></p>
+<pre><code>Prepare este computador para editar vídeos. Verifique se ffmpeg, Python 3,
+Node.js e a biblioteca Python faster-whisper estão instalados. Instale o que
+faltar com o gerenciador de pacotes do meu sistema. No fim, mostre as versões.
+</code></pre>
+<p><strong>Diagnosticar erro</strong></p>
+<pre><code>O comando abaixo deu erro. Explique em português simples o que aconteceu e
+corrija:
+&lt;cole o erro&gt;
+</code></pre>
+<hr />
+<h2>Aula 02 — Seu primeiro projeto</h2>
+<p><strong>Criar a pasta do vídeo</strong></p>
+<pre><code>Crie a pasta de um novo vídeo chamado &quot;&lt;AAAA-MM-cliente-tema&gt;&quot; seguindo
+modelos/estrutura-de-pastas.md e copie modelos/briefing.md para 00-briefing.md.
+</code></pre>
+<p><strong>Organizar gravações soltas</strong></p>
+<pre><code>Os arquivos em &lt;pasta&gt; estão com nomes aleatórios. Renomeie para take-01,
+take-02… pela ordem de gravação (data do arquivo) e mova para 01-bruto/.
+Me mostre a lista antes de renomear.
+</code></pre>
+<hr />
+<h2>Aula 03 — Custos sob controle</h2>
+<p><strong>Estimar antes de rodar</strong></p>
+<pre><code>Antes de editar, me diga quais etapas você vai executar, quais rodam só no
+meu computador (sem gastar IA) e qual a duração total dos vídeos em
+01-bruto/. Não execute nada ainda.
+</code></pre>
+<hr />
+<h2>Aula 04 — O pedido certo</h2>
+<p><strong>Analisar uma referência</strong></p>
+<pre><code>Analise 04-referencias/&lt;arquivo&gt;.mp4. Descreva ritmo dos cortes, estilo das
+legendas, transições e composições. Adapte essa direção ao roteiro e à
+identidade da HN, sem copiar a marca de ninguém. Amostra de 8 s primeiro.
+</code></pre>
+<p><strong>Transformar pedido vago em dirigido</strong></p>
+<pre><code>Reescreva meu pedido abaixo respondendo: qual arquivo/trecho, qual ação,
+qual estilo, qual formato e qual entrega. Depois execute só a amostra.
+Pedido: &quot;&lt;seu pedido vago&gt;&quot;
+</code></pre>
+<hr />
+<h2>Aula 05 — Primeira edição</h2>
+<p><strong>Etapa 1 — Cortar pausas</strong></p>
+<pre><code>Corte as pausas de 01-bruto/&lt;take&gt;.mp4 com ferramentas/cortar_silencios.py.
+Salve em 05-amostras/sem-pausas.mp4 e me diga quantos segundos foram removidos.
+</code></pre>
+<p><strong>Etapa 2 — Legendar</strong></p>
+<pre><code>Legende 05-amostras/sem-pausas.mp4 com ferramentas/legendar.py: maiúsculas,
+palavra falada na cor &lt;#7C3AED&gt;, destaque sempre &quot;&lt;HN&gt;&quot;, &quot;&lt;vendas&gt;&quot;.
+Queime a legenda no vídeo.
+</code></pre>
+<p><strong>Tudo de uma vez</strong></p>
+<pre><code>Corte as pausas e coloque legenda dinâmica em 01-bruto/&lt;take&gt;.mp4 usando as
+ferramentas da pasta ferramentas/ e as skills de legenda e ritmo.
+Me mostre os primeiros 10 segundos antes do vídeo inteiro.
+</code></pre>
+<hr />
+<h2>Aula 06 — Imagens com função</h2>
+<pre><code>Use a transcrição de &lt;vídeo&gt;. Quando eu disser &quot;&lt;frase&gt;&quot;, mostre
+03-assets/&lt;imagem&gt; entrando com &lt;zoom suave / deslize&gt;, por &lt;2&gt; segundos,
+na &lt;metade de cima&gt; do vídeo. Amostra só desse trecho.
+</code></pre>
+<p><strong>Sugerir imagens</strong></p>
+<pre><code>Leia a transcrição de &lt;vídeo&gt; e sugira em quais 5 momentos uma imagem
+provaria o que estou dizendo. Para cada um: tempo, frase e imagem ideal.
+Não edite ainda.
+</code></pre>
+<hr />
+<h2>Aula 07 — Motion explicativo</h2>
+<p><strong>Etapa 1 — Composição</strong></p>
+<pre><code>Crie um motion explicativo para o trecho em que falo &quot;&lt;item 1&gt;&quot;, &quot;&lt;item 2&gt;&quot;
+e &quot;&lt;item 3&gt;&quot;. Lista de 3 cards no topo do vídeo vertical, no estilo da skill
+de estilo da HN. Cada card acende quando falo o nome dele (use a transcrição).
+Meu rosto continua visível embaixo.
+</code></pre>
+<p><strong>Etapa 2 — Primeira amostra</strong></p>
+<pre><code>Gere só a amostra desse trecho, com o ritmo de cada elemento, antes de
+aplicar no vídeo inteiro.
+</code></pre>
+<hr />
+<h2>Aula 08 — Variações para ads</h2>
+<pre><code>Use 06-final/&lt;base&gt;.mp4 como base aprovada. Crie variações:
+- Versão B: abertura com o título &quot;&lt;gancho B&gt;&quot;
+- Versão C: abertura com &lt;imagem de prova&gt; antes da fala
+- Versão D: igual à B em formato 1:1
+Mantenha legenda e estilo. Salve em 06-final/ com sufixo da versão e formato.
+</code></pre>
+<p><strong>Gerar ganchos</strong></p>
+<pre><code>Leia o briefing e a transcrição e escreva 5 ganchos de 3 segundos para
+anúncio, cada um atacando uma dor diferente do público. Não edite ainda.
+</code></pre>
+<hr />
+<h2>Aula 09 — Revisar sem refazer</h2>
+<pre><code>Corrija apenas os itens abaixo em &lt;arquivo&gt;:
+- &lt;0:12&gt;: &lt;legenda &quot;vendaz&quot;&gt; → &lt;&quot;vendas&quot;&gt;
+- &lt;0:20–0:23&gt;: &lt;imagem atrasada&gt; → &lt;entra quando digo &quot;resultado&quot;&gt;
+Não mexa em mais nada do vídeo. Me mostre só os trechos corrigidos.
+</code></pre>
+<hr />
+<h2>Aula 10 — Rotina de produção</h2>
+<p><strong>Salvar o estilo aprovado</strong></p>
+<pre><code>Salve o estilo deste vídeo (cores, fonte, legenda, ritmo e animações) como
+skill reutilizável em .claude/skills/, para eu aplicar nos próximos vídeos
+da HN com um único comando.
+</code></pre>
+<p><strong>Processar a semana em lote</strong></p>
+<pre><code>Para cada pasta de vídeo desta semana: corte as pausas, legende e gere uma
+amostra de 10 s em 05-amostras/. Não processe o vídeo inteiro. Me mostre a
+lista de amostras para eu revisar.
+</code></pre>
+<hr />
+<h2>Bônus 01 — Perspectiva e composição 3D</h2>
+<pre><code>Monte uma composição 3D com &lt;3&gt; camadas: &quot;&lt;camada 1&gt;&quot;, &quot;&lt;camada 2&gt;&quot;,
+&quot;&lt;camada 3&gt;&quot;. Cada camada é um card que entra em perspectiva, empilhado com
+profundidade, girando levemente. Amostra de 6 segundos primeiro.
+</code></pre>
+<hr />
+<h2>Bônus 02 — Recorte, moldura e lettering</h2>
+<p><strong>Recorte de fundo + troca de cenário</strong></p>
+<pre><code>Recorte meu fundo em &lt;take&gt; sem tela verde e gere 3 versões de cenário:
+&lt;cidade à noite&gt;, &lt;gráfico neon&gt;, &lt;cor sólida #...&gt;. Amostra de 5 s de cada.
+</code></pre>
+<p><strong>Lettering atrás da pessoa</strong></p>
+<pre><code>Com o fundo recortado, coloque &quot;&lt;TEXTO&gt;&quot; em letras grandes atrás de mim e
+na frente do fundo, nos &lt;4&gt; primeiros segundos. Amostra de 6 s primeiro.
+</code></pre>
+<p><strong>Moldura</strong></p>
+<pre><code>Adicione uma moldura &lt;roxa&gt; com brilho abrindo espaço à &lt;direita&gt; para uma
+explicação entre &lt;0:10&gt; e &lt;0:18&gt;. Amostra só desse trecho.
+</code></pre></section>
+<section class="pagina" id="pg-briefing" data-id="briefing" hidden><h1>Briefing do vídeo — HN</h1>
+<blockquote>
+<p>Preencha antes de pedir qualquer edição. A IA lê este arquivo para entender o vídeo.</p>
+</blockquote>
+<h2>1. Identificação</h2>
+<ul>
+<li><strong>Nome do vídeo:</strong></li>
+<li><strong>Cliente:</strong> (HN própria / nome do cliente)</li>
+<li><strong>Tipo:</strong> ( ) Anúncio  ( ) Conteúdo  ( ) Explicação de oferta  ( ) Aula/tutorial</li>
+<li><strong>Data de entrega:</strong></li>
+</ul>
+<h2>2. Objetivo</h2>
+<ul>
+<li><strong>O que a pessoa deve fazer depois de assistir?</strong> (clicar, chamar no WhatsApp, agendar diagnóstico…)</li>
+<li><strong>Para quem é?</strong> (público, nível de consciência, dor principal)</li>
+<li><strong>Mensagem em uma frase:</strong></li>
+</ul>
+<h2>3. Formato e destino</h2>
+<ul>
+<li><strong>Formato:</strong> ( ) Vertical 9:16  ( ) Quadrado 1:1  ( ) Horizontal 16:9</li>
+<li><strong>Onde vai rodar:</strong> (Reels, TikTok, Stories, YouTube, Meta Ads, Google Ads…)</li>
+<li><strong>Duração alvo:</strong></li>
+</ul>
+<h2>4. Material</h2>
+<ul>
+<li><strong>Gravações:</strong> <code>01-bruto/</code> (liste os takes)</li>
+<li><strong>Roteiro:</strong> <code>02-roteiro/</code></li>
+<li><strong>Assets (logo, imagens, prints):</strong> <code>03-assets/</code></li>
+<li><strong>Referência de estilo:</strong> <code>04-referencias/</code> (o que agradou nela?)</li>
+</ul>
+<h2>5. Direção de edição</h2>
+<ul>
+<li><strong>Skills a usar:</strong> estilo / ritmo / legendas / movimento / composição</li>
+<li><strong>Gancho (3 primeiros segundos):</strong></li>
+<li><strong>Momentos que pedem imagem ou motion:</strong> (frase → o que aparece)</li>
+<li><strong>Palavras para destacar na legenda:</strong></li>
+<li><strong>Chamada final (CTA):</strong></li>
+</ul>
+<h2>6. Limites</h2>
+<ul>
+<li><strong>Tentativas aceitas antes de rever a direção:</strong></li>
+<li><strong>Variações para teste (ads):</strong> quantas e o que muda em cada</li>
+<li><strong>O que NÃO pode aparecer:</strong></li>
+</ul></section>
+<section class="pagina" id="pg-pastas" data-id="pastas" hidden><h1>Pasta modelo de um vídeo</h1>
+<p>Uma pasta por vídeo, sempre com a mesma estrutura. Nome: <code>AAAA-MM-cliente-tema</code>.</p>
+<pre><code>2026-10-hn-ads-gestao-comercial/
+├── 00-briefing.md        o que é o vídeo (copie de modelos/briefing.md)
+├── 01-bruto/             gravações originais — nunca edite aqui
+│   ├── take-01.mp4
+│   └── take-02.mp4
+├── 02-roteiro/           roteiro e transcrições
+│   └── roteiro.md
+├── 03-assets/            logo, imagens, prints, fontes, música
+│   ├── logo-hn.png
+│   └── grafico-crescimento.png
+├── 04-referencias/       vídeos de estilo (só para análise, nunca para publicar)
+├── 05-amostras/          trechos curtos para revisar antes do vídeo inteiro
+└── 06-final/             versões aprovadas, prontas para postar
+    ├── anuncio-v-a-9x16.mp4
+    └── anuncio-v-b-1x1.mp4
+</code></pre>
+<h2>Regras</h2>
+<ol>
+<li><strong>Nunca edite o bruto.</strong> Toda edição gera um arquivo novo.</li>
+<li><strong>Nomes que dizem o que são.</strong> <code>grafico-crescimento.png</code>, não <code>IMG_2231.png</code>.</li>
+<li><strong>Amostra antes do inteiro.</strong> Tudo passa por <code>05-amostras/</code> antes de <code>06-final/</code>.</li>
+<li><strong>Versão no nome.</strong> <code>-v-a</code>, <code>-v-b</code>… e o formato (<code>-9x16</code>, <code>-1x1</code>, <code>-16x9</code>).</li>
+<li><strong>Só use o que a HN tem direito de usar.</strong> Gravações, imagens, músicas e fontes.</li>
+</ol>
+<h2>Comando para criar</h2>
+<pre><code>Crie a pasta de um novo vídeo chamado &quot;&lt;nome&gt;&quot; seguindo
+modelos/estrutura-de-pastas.md e copie modelos/briefing.md para 00-briefing.md.
+</code></pre></section>
+<section class="pagina" id="pg-revisao" data-id="revisao" hidden><h1>Ficha de revisão</h1>
+<blockquote>
+<p>Revise a <strong>amostra</strong>, não o vídeo inteiro. Marque o que está errado com o tempo exato.
+Depois mande para a IA só os itens marcados, terminando com "não mexa em mais nada".</p>
+</blockquote>
+<p><strong>Vídeo:</strong> <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong>_  <strong>Versão:</strong> <strong><em>_  <strong>Data:</strong> </em></strong>_____</p>
+<h2>Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th style="text-align: center;">OK</th>
+<th style="text-align: center;">Ajustar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gancho para o scroll nos 3 primeiros segundos</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Pausas cortadas sem corte seco nas palavras</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Legenda sincronizada e sem erro de grafia</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Palavras-chave destacadas</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Imagens entram no momento da fala</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Motion legível (dá tempo de ler)</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Rosto não fica coberto em momento importante</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Cores, fonte e logo da marca corretos</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Áudio limpo e no volume certo</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>CTA claro no final</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+<tr>
+<td>Formato certo para o destino (9:16, 1:1, 16:9)</td>
+<td style="text-align: center;">☐</td>
+<td style="text-align: center;">☐</td>
+</tr>
+</tbody>
+</table>
+<h2>Correções (uma por linha)</h2>
+<table>
+<thead>
+<tr>
+<th>Tempo</th>
+<th>O que está errado</th>
+<th>Como deve ficar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0:00</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Pedido de correção pronto</h2>
+<pre><code>Corrija apenas os itens abaixo em &lt;arquivo&gt;:
+- &lt;tempo&gt;: &lt;o que está errado&gt; → &lt;como deve ficar&gt;
+- &lt;tempo&gt;: &lt;o que está errado&gt; → &lt;como deve ficar&gt;
+Não mexa em mais nada do vídeo. Me mostre só os trechos corrigidos.
+</code></pre></section>
+<section class="pagina" id="pg-materiais" data-id="materiais" hidden><h1>Os materiais que acompanham o curso</h1>
+<p>Assim como no original, você não começa do zero — e a IA também não:</p>
+<ul>
+<li><strong>O guia entrega o pedido certo para você</strong> → <a href="#comandos"><code>modelos/guia-de-comandos.md</code></a></li>
+<li><strong>As skills entregam o critério para a IA</strong> → <a href="#skill-estilo"><code>.claude/skills/</code></a>
+  (o Claude Code carrega sozinho; no Codex, o arquivo <code>AGENTS.md</code> aponta para elas)</li>
+<li><strong>Modelo de briefing</strong> → <a href="#briefing"><code>modelos/briefing.md</code></a></li>
+<li><strong>Pasta modelo para os arquivos</strong> → <a href="#pastas"><code>modelos/estrutura-de-pastas.md</code></a></li>
+<li><strong>Ficha de revisão</strong> → <a href="#revisao"><code>modelos/ficha-de-revisao.md</code></a></li>
+<li><strong>Ferramentas testadas</strong> → <a href="#ferramentas"><code>ferramentas/</code></a></li>
+</ul>
+<h2>Por que as skills fazem tanta diferença</h2>
+<p>Sem skills, um pedido como "edita esse vídeo e deixa bonito" devolve a gravação quase
+sem edição — <strong>a IA adivinha o resto</strong>. Com as skills ligadas, ela consulta 5
+critérios antes de editar, e a primeira amostra já chega perto do que você imaginou:</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Define</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Estilo</strong></td>
+<td>cor, fonte e clima</td>
+</tr>
+<tr>
+<td><strong>Ritmo</strong></td>
+<td>cortes e respiros</td>
+</tr>
+<tr>
+<td><strong>Legendas</strong></td>
+<td>tamanho e destaque</td>
+</tr>
+<tr>
+<td><strong>Movimento</strong></td>
+<td>entradas e transições</td>
+</tr>
+<tr>
+<td><strong>Composição</strong></td>
+<td>camadas e molduras</td>
+</tr>
+</tbody>
+</table>
+<h1>Glossário rápido</h1>
+<ul>
+<li><strong>Agente de IA</strong> — IA que escreve e executa código no seu computador (Codex, Claude Code).</li>
+<li><strong>Amostra</strong> — trecho curto (5–10 s) gerado para revisar antes do vídeo inteiro.</li>
+<li><strong>Bruto</strong> — a gravação original, sem edição. Nunca é alterada.</li>
+<li><strong>ffmpeg</strong> — ferramenta que faz cortes, junções, conversões e legendas.</li>
+<li><strong>Motion</strong> — animação gráfica (cards, ícones, textos) sobre o vídeo.</li>
+<li><strong>Skill</strong> — arquivo de critérios que a IA consulta para editar no seu estilo.</li>
+<li><strong>Token</strong> — unidade de consumo da IA; refazer gasta tokens à toa.</li>
+<li><strong>Transcrição com tempo</strong> — o texto da fala com o momento exato de cada palavra.</li>
+</ul></section>
+<section class="pagina" id="pg-skill-estilo" data-id="skill-estilo" hidden><h1>Estilo — cor, fonte e clima</h1><p class="arquivo">Arquivo: <code>.claude/skills/edicao-estilo/SKILL.md</code></p>
+<p>Consulte antes de criar qualquer elemento visual. Se o briefing do vídeo (<code>00-briefing.md</code>)
+definir outra identidade (vídeo de cliente), ela tem prioridade sobre esta.</p>
+<h2>Paleta da HN</h2>
+<blockquote>
+<p>Substitua pelos códigos oficiais da marca HN.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Papel</th>
+<th>Cor</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primária</td>
+<td><code>#7C3AED</code></td>
+<td>palavra em destaque, botões, bordas ativas</td>
+</tr>
+<tr>
+<td>Primária clara</td>
+<td><code>#A855F7</code></td>
+<td>brilhos, gradientes</td>
+</tr>
+<tr>
+<td>Fundo</td>
+<td><code>#0B0614</code></td>
+<td>cards, painéis, molduras</td>
+</tr>
+<tr>
+<td>Texto</td>
+<td><code>#FFFFFF</code></td>
+<td>legendas, títulos</td>
+</tr>
+<tr>
+<td>Texto secundário</td>
+<td><code>#C4B5FD</code></td>
+<td>subtítulos, rótulos</td>
+</tr>
+</tbody>
+</table>
+<h2>Fontes</h2>
+<ul>
+<li><strong>Títulos e lettering:</strong> fonte larga e pesada (ex.: Syne Bold, Montserrat ExtraBold).</li>
+<li><strong>Legendas:</strong> Montserrat ExtraBold, maiúsculas.</li>
+<li><strong>Rótulos pequenos:</strong> fonte condensada (ex.: Bebas Neue, Oswald), maiúsculas.</li>
+<li>Se a fonte não estiver instalada, instale-a ou avise antes de trocar.</li>
+</ul>
+<h2>Clima</h2>
+<ul>
+<li>Escuro, com brilho roxo sutil. Profissional e tecnológico, nunca infantil.</li>
+<li>Cards com cantos arredondados (16–24 px), borda fina roxa e leve brilho.</li>
+<li>Nada de cores fora da paleta, emojis ou clip-arts.</li>
+<li>Logo da HN: <code>03-assets/logo-hn.png</code>, canto superior, pequeno, só na abertura e no CTA.</li>
+</ul></section>
+<section class="pagina" id="pg-skill-ritmo" data-id="skill-ritmo" hidden><h1>Ritmo — cortes e respiros</h1><p class="arquivo">Arquivo: <code>.claude/skills/edicao-ritmo/SKILL.md</code></p>
+<h2>Pausas</h2>
+<ul>
+<li>Corte pausas acima de <strong>0,45 s</strong> com <code>ferramentas/cortar_silencios.py</code>.</li>
+<li>Mantenha <strong>0,12 s</strong> de respiro antes e depois de cada fala (evita corte seco).</li>
+<li>Se cortar o início ou o fim de palavras, aumente o respiro para 0,18 s ou abaixe o limiar para -40 dB.</li>
+</ul>
+<h2>Cortes</h2>
+<ul>
+<li><strong>Gancho:</strong> os 3 primeiros segundos precisam de movimento ou texto na tela. Nunca abra com rosto parado e sem texto.</li>
+<li>Em anúncios, troque algo na tela (corte, zoom, imagem, card) a cada <strong>2–4 s</strong>.</li>
+<li>Em conteúdo e aulas, pode chegar a <strong>5–6 s</strong> entre mudanças.</li>
+<li>Erros, repetições e frases recomeçadas: mantenha só a última versão completa da frase.</li>
+</ul>
+<h2>Entradas e saídas</h2>
+<ul>
+<li>Elementos entram <strong>no momento da palavra</strong> que os anuncia (use a transcrição com tempo).</li>
+<li>Tempo mínimo na tela: o suficiente para ler duas vezes (~0,4 s por palavra, mínimo 1,2 s).</li>
+<li>Termine com o CTA na tela por pelo menos <strong>2 s</strong>.</li>
+</ul>
+<h2>Processo</h2>
+<ul>
+<li>Sempre gere uma <strong>amostra de 5–10 s</strong> antes do vídeo inteiro.</li>
+</ul></section>
+<section class="pagina" id="pg-skill-legendas" data-id="skill-legendas" hidden><h1>Legendas — tamanho e destaque</h1><p class="arquivo">Arquivo: <code>.claude/skills/edicao-legendas/SKILL.md</code></p>
+<p>Use <code>ferramentas/legendar.py</code> (transcreve com faster-whisper e gera legenda dinâmica).</p>
+<h2>Padrão</h2>
+<pre><code>python3 ferramentas/legendar.py &lt;video&gt; --queimar --maiusculas --cor &quot;#7C3AED&quot; --destaque &quot;&lt;palavras-chave do briefing&gt;&quot;
+</code></pre>
+<ul>
+<li><strong>Maiúsculas</strong>, Montserrat ExtraBold, branco com contorno preto.</li>
+<li><strong>Até 3 palavras por bloco</strong> (máx. 22 letras). Quebre em pontuação e em pausas.</li>
+<li><strong>Palavra falada</strong> em destaque na cor primária, levemente ampliada.</li>
+<li><strong>Palavras-chave</strong> do briefing sempre na cor primária.</li>
+</ul>
+<h2>Posição</h2>
+<ul>
+<li>Vertical (9:16): um pouco abaixo do centro, acima da área de botões das redes (~22% da base).</li>
+<li>Quadrado/horizontal: terço inferior.</li>
+<li>Nunca cubra a boca, um card de motion ou o CTA. Se houver conflito, suba a legenda.</li>
+</ul>
+<h2>Revisão obrigatória</h2>
+<ul>
+<li>Leia o <code>.srt</code> antes de queimar: nomes próprios, marcas (HN, nomes de clientes) e números costumam sair errados na transcrição.</li>
+<li>Corrija no <code>.srt</code>/<code>.ass</code> e só então queime.</li>
+</ul></section>
+<section class="pagina" id="pg-skill-movimento" data-id="skill-movimento" hidden><h1>Movimento — entradas e transições</h1><p class="arquivo">Arquivo: <code>.claude/skills/edicao-movimento/SKILL.md</code></p>
+<h2>Entradas</h2>
+<ul>
+<li><strong>Cards e listas:</strong> deslize curto (20–40 px) + fade, 250–350 ms, curva suave (ease-out).</li>
+<li><strong>Imagens:</strong> zoom suave de 105% para 100%, ou deslize de baixo, 300 ms.</li>
+<li><strong>Ícones:</strong> pequeno "pop" (escala 0,8 → 1,0), 200 ms, sincronizado com a palavra.</li>
+<li><strong>Lettering:</strong> letras entrando em sequência ou palavra inteira com escala, 300–500 ms.</li>
+<li>Itens de uma lista entram <strong>um por vez</strong>, no tempo em que são falados — nunca todos juntos.</li>
+</ul>
+<h2>Saídas</h2>
+<ul>
+<li>Mais rápidas que as entradas (150–250 ms), fade ou deslize.</li>
+</ul>
+<h2>Transições entre cortes</h2>
+<ul>
+<li>Padrão: corte seco (mais ritmo).</li>
+<li>Mudança de assunto: zoom de ênfase (100% → 110% no rosto) ou glitch curto (até 150 ms) no tempo da fala.</li>
+<li>Nada de transições de "PowerPoint" (girar, cortina, estrela).</li>
+</ul>
+<h2>Câmera</h2>
+<ul>
+<li>Zoom de ênfase no rosto em frases fortes, no máximo a cada 6–8 s.</li>
+<li>Movimento constante e lento em fundos e composições 3D.</li>
+</ul></section>
+<section class="pagina" id="pg-skill-composicao" data-id="skill-composicao" hidden><h1>Composição — camadas e molduras</h1><p class="arquivo">Arquivo: <code>.claude/skills/edicao-composicao/SKILL.md</code></p>
+<h2>Ordem das camadas (de trás para frente)</h2>
+<ol>
+<li>Fundo (original ou novo cenário após recorte)</li>
+<li>Lettering grande (pode ficar <strong>atrás</strong> da pessoa, com o recorte)</li>
+<li>Pessoa (recortada, quando houver lettering ou troca de fundo)</li>
+<li>Cards, imagens e ícones de motion</li>
+<li>Moldura</li>
+<li>Legendas</li>
+<li>Logo e CTA</li>
+</ol>
+<h2>Espaço na tela (vertical 9:16)</h2>
+<ul>
+<li><strong>Topo (0–40%):</strong> motion, cards, imagens de prova.</li>
+<li><strong>Meio (40–75%):</strong> rosto. Não cubra em frases emocionais ou no gancho.</li>
+<li><strong>Base (75–100%):</strong> legendas e CTA, respeitando a área de botões das redes.</li>
+</ul>
+<h2>Molduras</h2>
+<ul>
+<li>Borda fina na cor primária com brilho suave, cantos arredondados.</li>
+<li>Use para "abrir espaço" para uma explicação no lado indicado (a pessoa vai para o outro lado).</li>
+</ul>
+<h2>Perspectiva 3D</h2>
+<ul>
+<li>Cards empilhados com profundidade, rotação leve (10–20°), sombra suave.</li>
+<li>No máximo 5 camadas por composição.</li>
+<li>Movimento de câmera lento e contínuo.</li>
+<li>Sempre valide numa amostra curta: é o efeito mais pesado de processar.</li>
+</ul>
+<h2>Recorte de fundo</h2>
+<ul>
+<li>Recorte sem tela verde (segmentação de pessoa).</li>
+<li>Confira bordas de cabelo e mãos na amostra antes de aplicar no vídeo inteiro.</li>
+</ul></section>
+<section class="pagina" id="pg-ferramentas" data-id="ferramentas" hidden><h1>Ferramentas</h1>
+<p>Scripts que fazem o trabalho pesado no seu computador, sem gastar IA. Você pode
+rodar direto ou pedir para o Codex/Claude Code rodar por você.</p>
+<h2>Instalar</h2>
+<p>Requer <strong>ffmpeg</strong> e <strong>Python 3</strong>. Depois:</p>
+<pre><code>pip install faster-whisper markdown
+</code></pre>
+<h2>Cortar pausas</h2>
+<pre><code>python3 ferramentas/cortar_silencios.py 01-bruto/take-01.mp4 05-amostras/sem-pausas.mp4
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Padrão</th>
+<th>Quando mudar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--limiar</code></td>
+<td><code>-32</code></td>
+<td>Abaixe para <code>-40</code> se estiver cortando falas baixas</td>
+</tr>
+<tr>
+<td><code>--pausa</code></td>
+<td><code>0.45</code></td>
+<td>Duração mínima (s) de uma pausa para ser cortada</td>
+</tr>
+<tr>
+<td><code>--respiro</code></td>
+<td><code>0.12</code></td>
+<td>Aumente se o corte ficar seco no início/fim das palavras</td>
+</tr>
+</tbody>
+</table>
+<h2>Legenda dinâmica</h2>
+<pre><code>python3 ferramentas/legendar.py 05-amostras/sem-pausas.mp4 --queimar --maiusculas --cor &quot;#7C3AED&quot; --destaque &quot;HN,vendas&quot;
+</code></pre>
+<p>Gera <code>.srt</code>, <code>.ass</code>, a transcrição em texto e, com <code>--queimar</code>, o vídeo legendado.
+Na primeira vez, baixa o modelo de transcrição (precisa de internet).</p>
+<h2>Atualizar este site</h2>
+<p>Editou algum <code>.md</code>? Gere o site de novo:</p>
+<pre><code>python3 ferramentas/gerar_site.py
+</code></pre>
+<h2>Código-fonte</h2><details><summary><code>ferramentas/cortar_silencios.py</code></summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Remove as pausas de uma gravação usando o silencedetect do ffmpeg.
+
+Uso:
+  python3 ferramentas/cortar_silencios.py entrada.mp4 saida.mp4
+  python3 ferramentas/cortar_silencios.py entrada.mp4 saida.mp4 --limiar -32 --pausa 0.45 --respiro 0.12
+&quot;&quot;&quot;
+import argparse
+import re
+import subprocess
+import sys
+
+
+def duracao(arquivo):
+    out = subprocess.run(
+        [&quot;ffprobe&quot;, &quot;-v&quot;, &quot;error&quot;, &quot;-show_entries&quot;, &quot;format=duration&quot;, &quot;-of&quot;, &quot;csv=p=0&quot;, arquivo],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    return float(out.strip())
+
+
+def detectar_silencios(arquivo, limiar_db, pausa_min):
+    log = subprocess.run(
+        [&quot;ffmpeg&quot;, &quot;-hide_banner&quot;, &quot;-nostats&quot;, &quot;-i&quot;, arquivo, &quot;-af&quot;,
+         f&quot;silencedetect=noise={limiar_db}dB:d={pausa_min}&quot;, &quot;-f&quot;, &quot;null&quot;, &quot;-&quot;],
+        capture_output=True, text=True,
+    ).stderr
+    inicios = [float(x) for x in re.findall(r&quot;silence_start: (-?[\d.]+)&quot;, log)]
+    fins = [float(x) for x in re.findall(r&quot;silence_end: ([\d.]+)&quot;, log)]
+    return list(zip(inicios, fins + [None] * (len(inicios) - len(fins))))
+
+
+def trechos_com_fala(silencios, total, respiro):
+    trechos, cursor = [], 0.0
+    for ini, fim in silencios:
+        fim = total if fim is None else fim
+        corte_ini = max(cursor, ini + respiro)
+        if corte_ini &gt; cursor:
+            trechos.append((cursor, corte_ini))
+        cursor = max(cursor, fim - respiro)
+    if cursor &lt; total:
+        trechos.append((cursor, total))
+    return [(a, b) for a, b in trechos if b - a &gt; 0.08]
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument(&quot;entrada&quot;)
+    p.add_argument(&quot;saida&quot;)
+    p.add_argument(&quot;--limiar&quot;, type=float, default=-32, help=&quot;volume (dB) abaixo do qual conta como silêncio&quot;)
+    p.add_argument(&quot;--pausa&quot;, type=float, default=0.45, help=&quot;duração mínima (s) de uma pausa para ser cortada&quot;)
+    p.add_argument(&quot;--respiro&quot;, type=float, default=0.12, help=&quot;folga (s) mantida antes e depois de cada fala&quot;)
+    a = p.parse_args()
+
+    total = duracao(a.entrada)
+    trechos = trechos_com_fala(detectar_silencios(a.entrada, a.limiar, a.pausa), total, a.respiro)
+    if not trechos:
+        sys.exit(&quot;Nenhuma fala encontrada. Tente um --limiar mais baixo (ex.: -40).&quot;)
+
+    expr = &quot;+&quot;.join(f&quot;between(t,{x:.3f},{y:.3f})&quot; for x, y in trechos)
+    filtro = (
+        f&quot;[0:v]select=&#x27;{expr}&#x27;,setpts=N/FRAME_RATE/TB[v];&quot;
+        f&quot;[0:a]aselect=&#x27;{expr}&#x27;,asetpts=N/SR/TB[a]&quot;
+    )
+    subprocess.run(
+        [&quot;ffmpeg&quot;, &quot;-hide_banner&quot;, &quot;-y&quot;, &quot;-i&quot;, a.entrada, &quot;-filter_complex&quot;, filtro,
+         &quot;-map&quot;, &quot;[v]&quot;, &quot;-map&quot;, &quot;[a]&quot;, &quot;-c:v&quot;, &quot;libx264&quot;, &quot;-preset&quot;, &quot;medium&quot;, &quot;-crf&quot;, &quot;18&quot;,
+         &quot;-c:a&quot;, &quot;aac&quot;, &quot;-b:a&quot;, &quot;192k&quot;, &quot;-movflags&quot;, &quot;+faststart&quot;, a.saida],
+        check=True,
+    )
+    final = sum(y - x for x, y in trechos)
+    print(f&quot;{len(trechos)} trechos mantidos · {total:.1f}s -&gt; {final:.1f}s ({total - final:.1f}s de pausas removidas)&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+<details><summary><code>ferramentas/legendar.py</code></summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Transcreve a fala e gera legendas dinâmicas (palavra em destaque no tempo da fala).
+
+Gera .srt (legenda simples) e .ass (legenda estilizada). Com --queimar, já entrega o vídeo legendado.
+
+Uso:
+  pip install faster-whisper
+  python3 ferramentas/legendar.py video.mp4 --queimar
+  python3 ferramentas/legendar.py video.mp4 --queimar --destaque &quot;HN,vendas,resultado&quot; --cor &quot;#7C3AED&quot; --maiusculas
+&quot;&quot;&quot;
+import argparse
+import json
+import os
+import subprocess
+
+
+def tamanho_video(arquivo):
+    out = subprocess.run(
+        [&quot;ffprobe&quot;, &quot;-v&quot;, &quot;error&quot;, &quot;-select_streams&quot;, &quot;v:0&quot;, &quot;-show_entries&quot;, &quot;stream=width,height&quot;,
+         &quot;-of&quot;, &quot;json&quot;, arquivo],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    s = json.loads(out)[&quot;streams&quot;][0]
+    return s[&quot;width&quot;], s[&quot;height&quot;]
+
+
+def transcrever(arquivo, modelo):
+    from faster_whisper import WhisperModel
+
+    m = WhisperModel(modelo, device=&quot;cpu&quot;, compute_type=&quot;int8&quot;)
+    segs, _ = m.transcribe(arquivo, language=&quot;pt&quot;, word_timestamps=True, vad_filter=True)
+    return [(w.start, w.end, w.word.strip()) for s in segs for w in s.words if w.word.strip()]
+
+
+def agrupar(palavras, max_palavras, max_letras):
+    blocos, atual = [], []
+    for i, p in enumerate(palavras):
+        atual.append(p)
+        texto = &quot; &quot;.join(x[2] for x in atual)
+        prox = palavras[i + 1] if i + 1 &lt; len(palavras) else None
+        fecha = (
+            len(atual) &gt;= max_palavras
+            or len(texto) &gt;= max_letras
+            or p[2][-1:] in &quot;.!?,;:&quot;
+            or (prox and prox[0] - p[1] &gt; 0.35)
+        )
+        if fecha:
+            blocos.append(atual)
+            atual = []
+    if atual:
+        blocos.append(atual)
+    return blocos
+
+
+def t_srt(t):
+    h, r = divmod(t, 3600)
+    m, s = divmod(r, 60)
+    return f&quot;{int(h):02}:{int(m):02}:{s:06.3f}&quot;.replace(&quot;.&quot;, &quot;,&quot;)
+
+
+def t_ass(t):
+    h, r = divmod(t, 3600)
+    m, s = divmod(r, 60)
+    return f&quot;{int(h)}:{int(m):02}:{s:05.2f}&quot;
+
+
+def cor_ass(hexcor):
+    h = hexcor.lstrip(&quot;#&quot;)
+    return f&quot;&amp;H00{h[4:6]}{h[2:4]}{h[0:2]}&quot;.upper()
+
+
+def limpar(palavra):
+    return palavra.strip(&quot;.,!?;:\&quot;&#x27;()&quot;).lower()
+
+
+def escrever(blocos, base, largura, altura, a):
+    destaques = {d.strip().lower() for d in a.destaque.split(&quot;,&quot;) if d.strip()}
+    cor = cor_ass(a.cor)
+    fmt = (lambda s: s.upper()) if a.maiusculas else (lambda s: s)
+
+    with open(base + &quot;.srt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        for i, b in enumerate(blocos, 1):
+            f.write(f&quot;{i}\n{t_srt(b[0][0])} --&gt; {t_srt(b[-1][1])}\n{&#x27; &#x27;.join(x[2] for x in b)}\n\n&quot;)
+
+    tam = round(altura * (0.045 if altura &gt; largura else 0.06))
+    margem = round(altura * (0.22 if altura &gt; largura else 0.08))
+    cab = f&quot;&quot;&quot;[Script Info]
+ScriptType: v4.00+
+PlayResX: {largura}
+PlayResY: {altura}
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Legenda,{a.fonte},{tam},&amp;H00FFFFFF,&amp;H00FFFFFF,&amp;H00000000,&amp;H64000000,-1,0,0,0,100,100,0,0,1,{max(2, tam // 12)},{max(1, tam // 20)},2,60,60,{margem},1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+&quot;&quot;&quot;
+    linhas = []
+    for b in blocos:
+        for k, (ini, fim, _) in enumerate(b):
+            fim_evento = b[k + 1][0] if k + 1 &lt; len(b) else fim
+            partes = []
+            for j, (_, _, w) in enumerate(b):
+                if j == k:
+                    partes.append(f&quot;{{\\c{cor}\\fscx112\\fscy112}}{fmt(w)}{{\\r}}&quot;)
+                elif limpar(w) in destaques:
+                    partes.append(f&quot;{{\\c{cor}}}{fmt(w)}{{\\r}}&quot;)
+                else:
+                    partes.append(fmt(w))
+            linhas.append(f&quot;Dialogue: 0,{t_ass(ini)},{t_ass(fim_evento)},Legenda,,0,0,0,,{&#x27; &#x27;.join(partes)}&quot;)
+    with open(base + &quot;.ass&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        f.write(cab + &quot;\n&quot;.join(linhas) + &quot;\n&quot;)
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument(&quot;video&quot;)
+    p.add_argument(&quot;--modelo&quot;, default=&quot;small&quot;, help=&quot;tiny, base, small, medium, large-v3 (maior = mais preciso e mais lento)&quot;)
+    p.add_argument(&quot;--max-palavras&quot;, type=int, default=3)
+    p.add_argument(&quot;--max-letras&quot;, type=int, default=22)
+    p.add_argument(&quot;--fonte&quot;, default=&quot;Montserrat ExtraBold&quot;)
+    p.add_argument(&quot;--cor&quot;, default=&quot;#A855F7&quot;, help=&quot;cor da palavra falada e dos destaques&quot;)
+    p.add_argument(&quot;--destaque&quot;, default=&quot;&quot;, help=&quot;palavras-chave sempre coloridas, separadas por vírgula&quot;)
+    p.add_argument(&quot;--maiusculas&quot;, action=&quot;store_true&quot;)
+    p.add_argument(&quot;--queimar&quot;, action=&quot;store_true&quot;, help=&quot;gera também o vídeo com a legenda aplicada&quot;)
+    a = p.parse_args()
+
+    base = os.path.splitext(a.video)[0]
+    largura, altura = tamanho_video(a.video)
+    palavras = transcrever(a.video, a.modelo)
+    blocos = agrupar(palavras, a.max_palavras, a.max_letras)
+    escrever(blocos, base, largura, altura, a)
+    with open(base + &quot;.transcricao.txt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        f.write(&quot; &quot;.join(w for _, _, w in palavras) + &quot;\n&quot;)
+    print(f&quot;{len(palavras)} palavras · {len(blocos)} blocos -&gt; {base}.srt / {base}.ass / {base}.transcricao.txt&quot;)
+
+    if a.queimar:
+        saida = base + &quot;-legendado.mp4&quot;
+        ass = (base + &quot;.ass&quot;).replace(&quot;\\&quot;, &quot;/&quot;).replace(&quot;:&quot;, &quot;\\:&quot;).replace(&quot;&#x27;&quot;, &quot;\\&#x27;&quot;)
+        subprocess.run(
+            [&quot;ffmpeg&quot;, &quot;-hide_banner&quot;, &quot;-y&quot;, &quot;-i&quot;, a.video, &quot;-vf&quot;, f&quot;ass=&#x27;{ass}&#x27;&quot;,
+             &quot;-c:v&quot;, &quot;libx264&quot;, &quot;-crf&quot;, &quot;18&quot;, &quot;-preset&quot;, &quot;medium&quot;, &quot;-c:a&quot;, &quot;copy&quot;,
+             &quot;-movflags&quot;, &quot;+faststart&quot;, saida],
+            check=True,
+        )
+        print(f&quot;Vídeo legendado: {saida}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details>
+<details><summary><code>ferramentas/gerar_site.py</code></summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Gera site/index.html: o curso inteiro numa página que abre no navegador, sem internet.
+
+Rode de novo sempre que editar os arquivos .md:
+  pip install markdown
+  python3 ferramentas/gerar_site.py
+&quot;&quot;&quot;
+import html
+import json
+import re
+from pathlib import Path
+
+import markdown
+
+RAIZ = Path(__file__).resolve().parent.parent
+MANUAL = RAIZ / &quot;curso&quot; / &quot;MANUAL-EDICAO-COM-IA-HN.md&quot;
+TITULO = &quot;Edição com IA — Curso HN&quot;
+
+LINKS = {
+    &quot;modelos/briefing.md&quot;: &quot;#briefing&quot;,
+    &quot;modelos/estrutura-de-pastas.md&quot;: &quot;#pastas&quot;,
+    &quot;modelos/ficha-de-revisao.md&quot;: &quot;#revisao&quot;,
+    &quot;modelos/guia-de-comandos.md&quot;: &quot;#comandos&quot;,
+    &quot;.claude/skills/&quot;: &quot;#skill-estilo&quot;,
+    &quot;ferramentas/cortar_silencios.py&quot;: &quot;#ferramentas&quot;,
+    &quot;ferramentas/legendar.py&quot;: &quot;#ferramentas&quot;,
+    &quot;ferramentas/&quot;: &quot;#ferramentas&quot;,
+}
+
+SKILLS = [
+    (&quot;estilo&quot;, &quot;Estilo&quot;),
+    (&quot;ritmo&quot;, &quot;Ritmo&quot;),
+    (&quot;legendas&quot;, &quot;Legendas&quot;),
+    (&quot;movimento&quot;, &quot;Movimento&quot;),
+    (&quot;composicao&quot;, &quot;Composição&quot;),
+]
+
+
+def subir_titulos(texto):
+    &quot;&quot;&quot;Promove ## -&gt; #, ### -&gt; ## fora dos blocos de código.&quot;&quot;&quot;
+    saida, em_codigo = [], False
+    for linha in texto.splitlines():
+        if linha.startswith(&quot;```&quot;):
+            em_codigo = not em_codigo
+        elif not em_codigo and re.match(r&quot;^#{2,6} &quot;, linha):
+            linha = linha[1:]
+        saida.append(linha)
+    return &quot;\n&quot;.join(saida)
+
+
+def limpar_separadores(texto):
+    return re.sub(r&quot;(^\s*---\s*$\n?)+\s*\Z&quot;, &quot;&quot;, texto.strip(), flags=re.M).strip()
+
+
+def render(texto):
+    corpo = markdown.markdown(texto, extensions=[&quot;tables&quot;, &quot;fenced_code&quot;, &quot;sane_lists&quot;])
+
+    def trocar(m):
+        alvo = m.group(1)
+        for fim, ancora in LINKS.items():
+            if alvo.endswith(fim):
+                return f&#x27;href=&quot;{ancora}&quot;&#x27;
+        return m.group(0)
+
+    return re.sub(r&#x27;href=&quot;([^&quot;#][^&quot;]*)&quot;&#x27;, trocar, corpo)
+
+
+def secoes_do_manual():
+    texto = MANUAL.read_text(encoding=&quot;utf-8&quot;)
+    partes = re.split(r&quot;(?m)^(?=## )&quot;, texto)
+    cabecalho, secoes = partes[0], partes[1:]
+    intro = [cabecalho.split(&quot;\n&quot;, 1)[1] if cabecalho.startswith(&quot;# &quot;) else cabecalho]
+    aulas, final = [], []
+    for s in secoes:
+        titulo = s.splitlines()[0][3:].strip()
+        m = re.match(r&quot;(Aula|Bônus) (\d+) — (.+)&quot;, titulo)
+        if m:
+            tipo, num, nome = m.groups()
+            pid = f&quot;{&#x27;aula&#x27; if tipo == &#x27;Aula&#x27; else &#x27;bonus&#x27;}-{num}&quot;
+            rotulo = f&quot;{num} · {nome}&quot; if tipo == &quot;Aula&quot; else f&quot;B{int(num)} · {nome}&quot;
+            aulas.append((pid, rotulo, tipo, subir_titulos(limpar_separadores(s))))
+        elif aulas:
+            final.append(limpar_separadores(s))
+        else:
+            intro.append(limpar_separadores(s))
+    inicio = f&quot;# {TITULO}\n\n&quot; + subir_titulos(&quot;\n\n&quot;.join(limpar_separadores(x) for x in intro))
+    materiais = subir_titulos(&quot;\n\n&quot;.join(final))
+    return inicio, aulas, materiais
+
+
+def pagina_ferramentas():
+    blocos = []
+    for nome in [&quot;cortar_silencios.py&quot;, &quot;legendar.py&quot;, &quot;gerar_site.py&quot;]:
+        codigo = (RAIZ / &quot;ferramentas&quot; / nome).read_text(encoding=&quot;utf-8&quot;)
+        blocos.append(
+            f&quot;&lt;details&gt;&lt;summary&gt;&lt;code&gt;ferramentas/{nome}&lt;/code&gt;&lt;/summary&gt;&quot;
+            f&quot;&lt;pre&gt;&lt;code&gt;{html.escape(codigo)}&lt;/code&gt;&lt;/pre&gt;&lt;/details&gt;&quot;
+        )
+    texto = &quot;&quot;&quot;# Ferramentas
+
+Scripts que fazem o trabalho pesado no seu computador, sem gastar IA. Você pode
+rodar direto ou pedir para o Codex/Claude Code rodar por você.
+
+## Instalar
+Requer **ffmpeg** e **Python 3**. Depois:
+```
+pip install faster-whisper markdown
+```
+
+## Cortar pausas
+```
+python3 ferramentas/cortar_silencios.py 01-bruto/take-01.mp4 05-amostras/sem-pausas.mp4
+```
+| Opção | Padrão | Quando mudar |
+|---|---|---|
+| `--limiar` | `-32` | Abaixe para `-40` se estiver cortando falas baixas |
+| `--pausa` | `0.45` | Duração mínima (s) de uma pausa para ser cortada |
+| `--respiro` | `0.12` | Aumente se o corte ficar seco no início/fim das palavras |
+
+## Legenda dinâmica
+```
+python3 ferramentas/legendar.py 05-amostras/sem-pausas.mp4 --queimar --maiusculas --cor &quot;#7C3AED&quot; --destaque &quot;HN,vendas&quot;
+```
+Gera `.srt`, `.ass`, a transcrição em texto e, com `--queimar`, o vídeo legendado.
+Na primeira vez, baixa o modelo de transcrição (precisa de internet).
+
+## Atualizar este site
+Editou algum `.md`? Gere o site de novo:
+```
+python3 ferramentas/gerar_site.py
+```
+
+## Código-fonte
+&quot;&quot;&quot;
+    return render(texto) + &quot;\n&quot;.join(blocos)
+
+
+def pagina_md(caminho, nota=None):
+    texto = caminho.read_text(encoding=&quot;utf-8&quot;)
+    texto = re.sub(r&quot;\A---\n.*?\n---\n&quot;, &quot;&quot;, texto, flags=re.S)
+    corpo = render(texto)
+    if nota:
+        corpo = corpo.replace(&quot;&lt;/h1&gt;&quot;, f&#x27;&lt;/h1&gt;&lt;p class=&quot;arquivo&quot;&gt;{nota}&lt;/p&gt;&#x27;, 1)
+    return corpo
+
+
+def montar():
+    inicio, aulas, materiais = secoes_do_manual()
+    paginas = [(&quot;inicio&quot;, &quot;Visão geral&quot;, &quot;Começo&quot;, render(inicio))]
+    for pid, rotulo, tipo, texto in aulas:
+        paginas.append((pid, rotulo, &quot;Aulas&quot; if tipo == &quot;Aula&quot; else &quot;Bônus&quot;, render(texto)))
+    paginas += [
+        (&quot;comandos&quot;, &quot;Guia de comandos&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/guia-de-comandos.md&quot;)),
+        (&quot;briefing&quot;, &quot;Modelo de briefing&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/briefing.md&quot;)),
+        (&quot;pastas&quot;, &quot;Pasta modelo&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/estrutura-de-pastas.md&quot;)),
+        (&quot;revisao&quot;, &quot;Ficha de revisão&quot;, &quot;Materiais&quot;, pagina_md(RAIZ / &quot;modelos/ficha-de-revisao.md&quot;)),
+        (&quot;materiais&quot;, &quot;Materiais e glossário&quot;, &quot;Materiais&quot;, render(materiais)),
+    ]
+    for slug, nome in SKILLS:
+        arq = RAIZ / f&quot;.claude/skills/edicao-{slug}/SKILL.md&quot;
+        paginas.append((f&quot;skill-{slug}&quot;, nome, &quot;Skills de edição&quot;,
+                        pagina_md(arq, f&quot;Arquivo: &lt;code&gt;.claude/skills/edicao-{slug}/SKILL.md&lt;/code&gt;&quot;)))
+    paginas.append((&quot;ferramentas&quot;, &quot;Ferramentas&quot;, &quot;Ferramentas&quot;, pagina_ferramentas()))
+
+    nav, grupo_atual = [], None
+    for pid, rotulo, grupo, _ in paginas:
+        if grupo != grupo_atual:
+            if grupo_atual:
+                nav.append(&quot;&lt;/ul&gt;&quot;)
+            nav.append(f&#x27;&lt;p class=&quot;grupo&quot;&gt;{html.escape(grupo)}&lt;/p&gt;&lt;ul&gt;&#x27;)
+            grupo_atual = grupo
+        marca = &#x27;&lt;span class=&quot;ok&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&#x27; if pid.startswith((&quot;aula-&quot;, &quot;bonus-&quot;)) else &quot;&quot;
+        nav.append(f&#x27;&lt;li&gt;&lt;a href=&quot;#{pid}&quot; data-id=&quot;{pid}&quot;&gt;{marca}{html.escape(rotulo)}&lt;/a&gt;&lt;/li&gt;&#x27;)
+    nav.append(&quot;&lt;/ul&gt;&quot;)
+
+    secoes = &quot;\n&quot;.join(
+        f&#x27;&lt;section class=&quot;pagina&quot; id=&quot;pg-{pid}&quot; data-id=&quot;{pid}&quot; hidden&gt;{corpo}&lt;/section&gt;&#x27;
+        for pid, _, _, corpo in paginas
+    )
+    ordem = [{&quot;id&quot;: p[0], &quot;rotulo&quot;: p[1], &quot;aula&quot;: p[0].startswith((&quot;aula-&quot;, &quot;bonus-&quot;))} for p in paginas]
+    saida = MODELO.replace(&quot;{{TITULO}}&quot;, html.escape(TITULO))
+    saida = saida.replace(&quot;{{NAV}}&quot;, &quot;\n&quot;.join(nav)).replace(&quot;{{SECOES}}&quot;, secoes)
+    saida = saida.replace(&quot;[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · Ambiente pronto", "aula": true}, {"id": "aula-02", "rotulo": "02 · Seu primeiro projeto", "aula": true}, {"id": "aula-03", "rotulo": "03 · Custos sob controle", "aula": true}, {"id": "aula-04", "rotulo": "04 · O pedido certo", "aula": true}, {"id": "aula-05", "rotulo": "05 · Primeira edição", "aula": true}, {"id": "aula-06", "rotulo": "06 · Imagens com função", "aula": true}, {"id": "aula-07", "rotulo": "07 · Motion explicativo", "aula": true}, {"id": "aula-08", "rotulo": "08 · Variações para ads", "aula": true}, {"id": "aula-09", "rotulo": "09 · Revisar sem refazer", "aula": true}, {"id": "aula-10", "rotulo": "10 · Rotina de produção", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · Perspectiva e composição 3D", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Recorte, moldura e lettering", "aula": true}, {"id": "comandos", "rotulo": "Guia de comandos", "aula": false}, {"id": "briefing", "rotulo": "Modelo de briefing", "aula": false}, {"id": "pastas", "rotulo": "Pasta modelo", "aula": false}, {"id": "revisao", "rotulo": "Ficha de revisão", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-estilo", "rotulo": "Estilo", "aula": false}, {"id": "skill-ritmo", "rotulo": "Ritmo", "aula": false}, {"id": "skill-legendas", "rotulo": "Legendas", "aula": false}, {"id": "skill-movimento", "rotulo": "Movimento", "aula": false}, {"id": "skill-composicao", "rotulo": "Composição", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}]&quot;, json.dumps(ordem, ensure_ascii=False))
+    destino = RAIZ / &quot;site&quot; / &quot;index.html&quot;
+    destino.parent.mkdir(exist_ok=True)
+    destino.write_text(saida, encoding=&quot;utf-8&quot;)
+    print(f&quot;{len(paginas)} páginas -&gt; {destino.relative_to(RAIZ)}&quot;)
+
+
+MODELO = r&quot;&quot;&quot;&lt;!doctype html&gt;
+&lt;html lang=&quot;pt-BR&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;title&gt;{{TITULO}}&lt;/title&gt;
+&lt;style&gt;
+:root{--bg:#f7f6fb;--painel:#fff;--texto:#1c1530;--suave:#5d5675;--linha:#e4e0ef;--marca:#7c3aed;--marca-suave:#efe7fd;--codigo-bg:#16101f;--codigo-tx:#ece6f8;--ok:#16a34a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=&quot;light&quot;]){--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}}
+:root[data-theme=&quot;dark&quot;]{--bg:#0d0915;--painel:#151020;--texto:#ece8f5;--suave:#a39bb8;--linha:#2a2238;--marca:#a78bfa;--marca-suave:#231a36;--codigo-bg:#0a0710;--codigo-tx:#ece6f8;--ok:#4ade80}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--texto);font:16px/1.65 system-ui,-apple-system,&quot;Segoe UI&quot;,Roboto,Ubuntu,sans-serif}
+.topo{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--painel);border-bottom:1px solid var(--linha)}
+.topo strong{font-size:15px;letter-spacing:.01em}
+.topo .marca{width:28px;height:28px;border-radius:8px;background:var(--marca);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.topo .espaco{flex:1}
+.progresso{font-size:13px;color:var(--suave);white-space:nowrap}
+.barra{height:4px;width:120px;background:var(--linha);border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--marca);transition:width .3s}
+button{font:inherit;cursor:pointer}
+.botao-menu{display:none;background:none;border:1px solid var(--linha);color:var(--texto);border-radius:8px;padding:4px 10px}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1240px;margin:0 auto}
+nav{position:sticky;top:53px;height:calc(100vh - 53px);overflow:auto;padding:16px 12px 40px;border-right:1px solid var(--linha)}
+nav .grupo{margin:18px 10px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--suave)}
+nav ul{list-style:none;margin:0;padding:0}
+nav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:var(--texto);text-decoration:none;font-size:14.5px}
+nav a:hover{background:var(--marca-suave)}
+nav a.ativo{background:var(--marca-suave);color:var(--marca);font-weight:600}
+nav .ok{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid var(--linha)}
+nav a.feito .ok{background:var(--ok);border-color:var(--ok)}
+main{padding:32px 40px 80px;min-width:0}
+.pagina{max-width:760px}
+h1{font-size:32px;line-height:1.2;margin:0 0 20px;letter-spacing:-.01em}
+h2{font-size:22px;margin:36px 0 12px;padding-top:8px}
+h3{font-size:18px;margin:26px 0 8px}
+a{color:var(--marca)}
+blockquote{margin:18px 0;padding:12px 16px;background:var(--marca-suave);border-left:4px solid var(--marca);border-radius:0 10px 10px 0}
+blockquote p{margin:.3em 0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:var(--marca-suave)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--marca-suave);padding:.1em .35em;border-radius:5px}
+pre{position:relative;background:var(--codigo-bg);color:var(--codigo-tx);padding:16px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55}
+pre code{background:none;padding:0;color:inherit;white-space:pre}
+.copiar{position:absolute;top:8px;right:8px;background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:2px 10px;font-size:12px}
+.copiar:hover{background:#ffffff33}
+details{margin:12px 0;border:1px solid var(--linha);border-radius:10px;padding:8px 14px;background:var(--painel)}
+summary{cursor:pointer;font-weight:600}
+.arquivo{color:var(--suave);font-size:14px;margin-top:-10px}
+.rodape{max-width:760px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--linha)}
+.rodape a{text-decoration:none;padding:8px 14px;border:1px solid var(--linha);border-radius:10px;background:var(--painel);color:var(--texto);font-size:14px}
+.rodape a:hover{border-color:var(--marca)}
+.concluir{display:flex;align-items:center;gap:8px;font-weight:600;padding:8px 14px;border-radius:10px;border:1px solid var(--marca);background:var(--painel);color:var(--marca)}
+.concluir.feito{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (max-width:860px){
+.layout{grid-template-columns:1fr}
+.botao-menu{display:block}
+nav{position:fixed;top:53px;left:0;width:min(300px,85vw);background:var(--painel);z-index:15;transform:translateX(-105%);transition:transform .2s;box-shadow:0 10px 30px #0004}
+body.menu-aberto nav{transform:none}
+main{padding:24px 16px 64px}
+h1{font-size:26px}
+.barra{display:none}
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header class=&quot;topo&quot;&gt;
+&lt;button class=&quot;botao-menu&quot; aria-label=&quot;Abrir menu&quot; onclick=&quot;document.body.classList.toggle(&#x27;menu-aberto&#x27;)&quot;&gt;☰&lt;/button&gt;
+&lt;span class=&quot;marca&quot;&gt;HN&lt;/span&gt;&lt;strong&gt;{{TITULO}}&lt;/strong&gt;
+&lt;span class=&quot;espaco&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;progresso&quot; id=&quot;progresso&quot;&gt;&lt;/span&gt;&lt;span class=&quot;barra&quot;&gt;&lt;i id=&quot;barra&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+&lt;/header&gt;
+&lt;div class=&quot;layout&quot;&gt;
+&lt;nav aria-label=&quot;Conteúdo do curso&quot;&gt;{{NAV}}&lt;/nav&gt;
+&lt;main&gt;
+{{SECOES}}
+&lt;div class=&quot;rodape&quot; id=&quot;rodape&quot;&gt;&lt;/div&gt;
+&lt;/main&gt;
+&lt;/div&gt;
+&lt;script&gt;
+const ORDEM=[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · Ambiente pronto", "aula": true}, {"id": "aula-02", "rotulo": "02 · Seu primeiro projeto", "aula": true}, {"id": "aula-03", "rotulo": "03 · Custos sob controle", "aula": true}, {"id": "aula-04", "rotulo": "04 · O pedido certo", "aula": true}, {"id": "aula-05", "rotulo": "05 · Primeira edição", "aula": true}, {"id": "aula-06", "rotulo": "06 · Imagens com função", "aula": true}, {"id": "aula-07", "rotulo": "07 · Motion explicativo", "aula": true}, {"id": "aula-08", "rotulo": "08 · Variações para ads", "aula": true}, {"id": "aula-09", "rotulo": "09 · Revisar sem refazer", "aula": true}, {"id": "aula-10", "rotulo": "10 · Rotina de produção", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · Perspectiva e composição 3D", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Recorte, moldura e lettering", "aula": true}, {"id": "comandos", "rotulo": "Guia de comandos", "aula": false}, {"id": "briefing", "rotulo": "Modelo de briefing", "aula": false}, {"id": "pastas", "rotulo": "Pasta modelo", "aula": false}, {"id": "revisao", "rotulo": "Ficha de revisão", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-estilo", "rotulo": "Estilo", "aula": false}, {"id": "skill-ritmo", "rotulo": "Ritmo", "aula": false}, {"id": "skill-legendas", "rotulo": "Legendas", "aula": false}, {"id": "skill-movimento", "rotulo": "Movimento", "aula": false}, {"id": "skill-composicao", "rotulo": "Composição", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}];
+const CHAVE=&quot;curso-hn-concluidas&quot;;
+function ler(){try{return new Set(JSON.parse(localStorage.getItem(CHAVE)||&quot;[]&quot;))}catch(e){return new Set()}}
+function gravar(s){try{localStorage.setItem(CHAVE,JSON.stringify([...s]))}catch(e){}}
+let feitas=ler();
+function atualizarProgresso(){
+  const aulas=ORDEM.filter(p=&gt;p.aula);
+  const n=aulas.filter(p=&gt;feitas.has(p.id)).length;
+  document.getElementById(&quot;progresso&quot;).textContent=n+&quot;/&quot;+aulas.length+&quot; aulas&quot;;
+  document.getElementById(&quot;barra&quot;).style.width=(100*n/aulas.length)+&quot;%&quot;;
+  document.querySelectorAll(&quot;nav a&quot;).forEach(a=&gt;a.classList.toggle(&quot;feito&quot;,feitas.has(a.dataset.id)));
+}
+function mostrar(){
+  let id=location.hash.slice(1);
+  if(!ORDEM.some(p=&gt;p.id===id))id=&quot;inicio&quot;;
+  document.querySelectorAll(&quot;.pagina&quot;).forEach(s=&gt;s.hidden=s.dataset.id!==id);
+  document.querySelectorAll(&quot;nav a&quot;).forEach(a=&gt;a.classList.toggle(&quot;ativo&quot;,a.dataset.id===id));
+  const i=ORDEM.findIndex(p=&gt;p.id===id),p=ORDEM[i],ant=ORDEM[i-1],prox=ORDEM[i+1];
+  const r=document.getElementById(&quot;rodape&quot;);r.innerHTML=&quot;&quot;;
+  r.append(ant?link(ant,&quot;← &quot;+ant.rotulo):document.createElement(&quot;span&quot;));
+  if(p.aula){
+    const b=document.createElement(&quot;button&quot;);b.className=&quot;concluir&quot;;
+    const pintar=()=&gt;{const f=feitas.has(id);b.classList.toggle(&quot;feito&quot;,f);b.textContent=f?&quot;✓ Aula concluída&quot;:&quot;Marcar como concluída&quot;};
+    b.onclick=()=&gt;{feitas.has(id)?feitas.delete(id):feitas.add(id);gravar(feitas);pintar();atualizarProgresso()};
+    pintar();r.append(b);
+  }
+  if(prox)r.append(link(prox,prox.rotulo+&quot; →&quot;));
+  document.body.classList.remove(&quot;menu-aberto&quot;);
+  window.scrollTo(0,0);
+  document.title=p.rotulo+&quot; · {{TITULO}}&quot;;
+}
+function link(p,t){const a=document.createElement(&quot;a&quot;);a.href=&quot;#&quot;+p.id;a.textContent=t;return a}
+document.querySelectorAll(&quot;pre&quot;).forEach(pre=&gt;{
+  const b=document.createElement(&quot;button&quot;);b.className=&quot;copiar&quot;;b.textContent=&quot;Copiar&quot;;
+  b.onclick=async()=&gt;{
+    const t=pre.querySelector(&quot;code&quot;).innerText;
+    try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement(&quot;textarea&quot;);a.value=t;document.body.append(a);a.select();document.execCommand(&quot;copy&quot;);a.remove()}
+    b.textContent=&quot;Copiado&quot;;setTimeout(()=&gt;b.textContent=&quot;Copiar&quot;,1500);
+  };
+  pre.append(b);
+});
+window.addEventListener(&quot;hashchange&quot;,mostrar);
+atualizarProgresso();mostrar();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+
+if __name__ == &quot;__main__&quot;:
+    montar()
+</code></pre></details></section>
+<div class="rodape" id="rodape"></div>
+</main>
+</div>
+<script>
+const ORDEM=[{"id": "inicio", "rotulo": "Visão geral", "aula": false}, {"id": "aula-01", "rotulo": "01 · Ambiente pronto", "aula": true}, {"id": "aula-02", "rotulo": "02 · Seu primeiro projeto", "aula": true}, {"id": "aula-03", "rotulo": "03 · Custos sob controle", "aula": true}, {"id": "aula-04", "rotulo": "04 · O pedido certo", "aula": true}, {"id": "aula-05", "rotulo": "05 · Primeira edição", "aula": true}, {"id": "aula-06", "rotulo": "06 · Imagens com função", "aula": true}, {"id": "aula-07", "rotulo": "07 · Motion explicativo", "aula": true}, {"id": "aula-08", "rotulo": "08 · Variações para ads", "aula": true}, {"id": "aula-09", "rotulo": "09 · Revisar sem refazer", "aula": true}, {"id": "aula-10", "rotulo": "10 · Rotina de produção", "aula": true}, {"id": "bonus-01", "rotulo": "B1 · Perspectiva e composição 3D", "aula": true}, {"id": "bonus-02", "rotulo": "B2 · Recorte, moldura e lettering", "aula": true}, {"id": "comandos", "rotulo": "Guia de comandos", "aula": false}, {"id": "briefing", "rotulo": "Modelo de briefing", "aula": false}, {"id": "pastas", "rotulo": "Pasta modelo", "aula": false}, {"id": "revisao", "rotulo": "Ficha de revisão", "aula": false}, {"id": "materiais", "rotulo": "Materiais e glossário", "aula": false}, {"id": "skill-estilo", "rotulo": "Estilo", "aula": false}, {"id": "skill-ritmo", "rotulo": "Ritmo", "aula": false}, {"id": "skill-legendas", "rotulo": "Legendas", "aula": false}, {"id": "skill-movimento", "rotulo": "Movimento", "aula": false}, {"id": "skill-composicao", "rotulo": "Composição", "aula": false}, {"id": "ferramentas", "rotulo": "Ferramentas", "aula": false}];
+const CHAVE="curso-hn-concluidas";
+function ler(){try{return new Set(JSON.parse(localStorage.getItem(CHAVE)||"[]"))}catch(e){return new Set()}}
+function gravar(s){try{localStorage.setItem(CHAVE,JSON.stringify([...s]))}catch(e){}}
+let feitas=ler();
+function atualizarProgresso(){
+  const aulas=ORDEM.filter(p=>p.aula);
+  const n=aulas.filter(p=>feitas.has(p.id)).length;
+  document.getElementById("progresso").textContent=n+"/"+aulas.length+" aulas";
+  document.getElementById("barra").style.width=(100*n/aulas.length)+"%";
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("feito",feitas.has(a.dataset.id)));
+}
+function mostrar(){
+  let id=location.hash.slice(1);
+  if(!ORDEM.some(p=>p.id===id))id="inicio";
+  document.querySelectorAll(".pagina").forEach(s=>s.hidden=s.dataset.id!==id);
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("ativo",a.dataset.id===id));
+  const i=ORDEM.findIndex(p=>p.id===id),p=ORDEM[i],ant=ORDEM[i-1],prox=ORDEM[i+1];
+  const r=document.getElementById("rodape");r.innerHTML="";
+  r.append(ant?link(ant,"← "+ant.rotulo):document.createElement("span"));
+  if(p.aula){
+    const b=document.createElement("button");b.className="concluir";
+    const pintar=()=>{const f=feitas.has(id);b.classList.toggle("feito",f);b.textContent=f?"✓ Aula concluída":"Marcar como concluída"};
+    b.onclick=()=>{feitas.has(id)?feitas.delete(id):feitas.add(id);gravar(feitas);pintar();atualizarProgresso()};
+    pintar();r.append(b);
+  }
+  if(prox)r.append(link(prox,prox.rotulo+" →"));
+  document.body.classList.remove("menu-aberto");
+  window.scrollTo(0,0);
+  document.title=p.rotulo+" · Edição com IA — Curso HN";
+}
+function link(p,t){const a=document.createElement("a");a.href="#"+p.id;a.textContent=t;return a}
+document.querySelectorAll("pre").forEach(pre=>{
+  const b=document.createElement("button");b.className="copiar";b.textContent="Copiar";
+  b.onclick=async()=>{
+    const t=pre.querySelector("code").innerText;
+    try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}
+    b.textContent="Copiado";setTimeout(()=>b.textContent="Copiar",1500);
+  };
+  pre.append(b);
+});
+window.addEventListener("hashchange",mostrar);
+atualizarProgresso();mostrar();
+</script>
+</body>
+</html>
