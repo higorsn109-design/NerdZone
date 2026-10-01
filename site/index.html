@@ -1724,7 +1724,8 @@ atualizarProgresso();mostrar();
 
 if __name__ == &quot;__main__&quot;:
     for c in CURSOS:
-        montar(c)
+        if (RAIZ / c[&quot;manual&quot;]).exists():
+            montar(c)
 </code></pre></details></section>
 <div class="rodape" id="rodape"></div>
 </main>

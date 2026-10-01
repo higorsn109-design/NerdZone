@@ -314,4 +314,5 @@ atualizarProgresso();mostrar();
 
 if __name__ == "__main__":
     for c in CURSOS:
-        montar(c)
+        if (RAIZ / c["manual"]).exists():
+            montar(c)
