@@ -4,12 +4,14 @@ Central de edição de vídeos com IA da **HN Gestão Comercial e Marketing**: v
 comando em português, e o Codex ou o Claude Code edita.
 
 ## Abrir o curso no navegador
+**Dois cliques em `CURSO.html`.** Abre direto no navegador, sem instalar nada e sem internet.
+
+Opcional, com servidor local (precisa de Python):
 - **Windows:** dois cliques em `abrir-curso.bat`
 - **Mac:** dois cliques em `abrir-curso.command` (na primeira vez: botão direito → Abrir)
 - **Linux:** `sh abrir-curso.command`
 
-O curso abre em **http://localhost:8000**. Sem Python instalado, o atalho abre direto
-o arquivo `site/index.html`, que também funciona sozinho, sem internet.
+Nesse caso o curso abre em **http://localhost:8000**, só enquanto a janela do atalho estiver aberta.
 
 ## Comece por aqui
 1. Faça o curso no navegador (ou leia [`curso/MANUAL-EDICAO-COM-IA-HN.md`](curso/MANUAL-EDICAO-COM-IA-HN.md)).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera site/index.html: o curso inteiro numa página que abre no navegador, sem internet.
+"""Gera CURSO.html (e site/index.html): o curso inteiro numa página que abre no navegador, sem internet.
 
 Rode de novo sempre que editar os arquivos .md:
   pip install markdown
@@ -184,7 +184,8 @@ def montar():
     destino = RAIZ / "site" / "index.html"
     destino.parent.mkdir(exist_ok=True)
     destino.write_text(saida, encoding="utf-8")
-    print(f"{len(paginas)} páginas -> {destino.relative_to(RAIZ)}")
+    (RAIZ / "CURSO.html").write_text(saida, encoding="utf-8")
+    print(f"{len(paginas)} páginas -> CURSO.html e {destino.relative_to(RAIZ)}")
 
 
 MODELO = r"""<!doctype html>
